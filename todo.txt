@@ -1,0 +1,10 @@
+* finir l'extract
+* bien connaitre son dataset et les features
+* proposer (au moins philosophiquement pas forcément implémenté) une facon intelligente de simplifier 
+  les données pour les donner à l'algo (exemple des synthèse sur le nombre de cluster)
+* commencer à réfléchir à l'architecture data
+* décrire un fonctionnement à partir d'une requete de l'utilisateur -> 
+
+Audrey : faire l'architechture data : à partir d'une requete de l'utilisateur, quelle base est stockée ou,
+quelles sont les requetes, sous quelle forme les données sont stockées (tables simplifiées ou complèytes)
+fréquence de mise à jour
