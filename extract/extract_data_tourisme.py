@@ -6,14 +6,14 @@ class DataTourismExtractor():
         self.list_chemin = list_chemin
 
     def extract_csv(self):
+        """Fonction d'appel à l'API du site du gouvernement afin de telecharger les fichier CSV de DataTourisme sur chaque région 
+        et de les stocker"""
 
-
-        api_url = "https://www.data.gouv.fr/api/2/datasets/5b598be088ee387c0c353714/resources/?page=1&page_size=50" # La requette est sur le /states/all et c'est la que les param sont important et préciser
-        
+        api_url = "https://www.data.gouv.fr/api/2/datasets/5b598be088ee387c0c353714/resources/?page=1&page_size=50"
 
         
         try:
-            print("Making API request... (this may take a few seconds)")
+            print("Request à l'API")
             
 
 
@@ -21,31 +21,33 @@ class DataTourismExtractor():
             
 
 
-            if response.status_code == 200: #status_code = le statu html de la reponse et 200 c'est quand c'est bon
+            if response.status_code == 200: 
                 print("Cela fonctionne")
 
 
 
-                data = response.json() # Vas cherche les données de la request (voir ca comme les ROS)
+                data = response.json() 
             
                 for part in data.get('data', []):
-
+                    # On récupère les titres des fichier 
                     title = part.get('title')
                     
-
+                    # Si on est dans la liste des csv a garder
                     if title in  self.list_chemin:
                         
                         url_csv  = part.get('url')
 
+                        # on fait un request à l'api du csv en question
                         requests_csv = requests.get(url_csv)
 
                         if requests_csv.status_code == 200:
-
+                            
+                            # On telecharge sous format CSV le fichier
                             with open("data/"+ title, "wb") as f:
                                 f.write(requests_csv.content)
 
 
-            print(f"Created all CSV")
+            print(f"Tout les CSV sont créer")
         
         except requests.exceptions.RequestException as e:
             print(f"❌ Network error fetching data: {e}")
@@ -56,16 +58,18 @@ class DataTourismExtractor():
     
 
     def extract_data(self):
+        """Fonctionqui récupère chaque dataframe de chaque région et les concatène dans un seul dataframe"""
 
-        # print("📄 Reading tourism data from CSV...")
         
         try:
 
             df = pd.DataFrame()
+
+            # Concaténation des dataframe
             for chemin in self.list_chemin:
                 df = pd.concat([df, pd.read_csv("../data/"+ chemin)], ignore_index=True)
 
-            print('Data retreived in a dataframe')
+            print('Dataframe créer')
             return df
             
         except Exception as e:
