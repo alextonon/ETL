@@ -7,54 +7,82 @@ class DataTourismTransformer():
         self.categorie_dict = categorie_dict
         self.df_cluster = df_cluster
 
+        self.df_DataTourisme = pd.DataFrame()
+
     def clean_data(self):
+        """
+        Fonction permettant de nétoyer les donnée brut du dataset DataTourisme. Cette fonction réalise plusieur
+        nettoyage tel que la suppression de colonne et de ligne inutile, la reclassification des point of intrest (POI),
+        ou encore l'ajout de colonnes pour un comprehension plus simple du dataset
+
+        Returns:
+            df (pd.DataFrame): DataFrame nettoyé.
+        """
 
         if self.df_tourism.empty:
-            print("⚠️  No data to clean")
+            print("⚠️  Pas de données a néttoyer")
             return self.df_tourism
         
-        print(f"🧹 Cleaning  data...")
-        print(f"Starting with {len(self.df_tourism)} ")
+        print(f"🧹 Nettoyage des données...")
+        print(f"On commence avec {len(self.df_tourism)} ")
         
-        # Make a copy to avoid modifying the original
+        # On fait un copy pour ne pas modifier l'originale
         df = self.df_tourism.copy()
 
-        # Drop the usless data
+
+        ### On supprime les données qui sont inutiles pour notre algorithme de décision et dont les champs sont principalement vide. ###
         df.drop(['Periodes_regroupees', 'Covid19_mesures_specifiques', 'Contacts_du_POI', 'Classements_du_POI', 'SIT_diffuseur'], axis=1)
 
 
-        # On récupère uniquement les catégorie de POI
+        ### On récupère uniquement les catégorie de POI (orignialement noyyer dans une url) ###
         df["Categories_de_POI"] = df["Categories_de_POI"].str.split('/').str[-1]
         df["Categories_de_POI"] = df["Categories_de_POI"].str.split('#').str[-1]
 
-        # On découpe la colone en 3 pour plus de clareter
+        ### Ici, seul les données sur le code postale, la catégorie du POI ainsi que le nom du POI sont important 
+        # pour l'algorithme, c'est pour cela que nous enlevont les ligne avec des case vides sur ces features ###
+        df = df.dropna(subset=["Nom_du_POI", "Categories_de_POI", 'Code_postal_et_commune'])
+
+
+        ### La colonne Code postale et commune comporte trois information que nous allon répartire dans trois colonne différente pour plus 
+        # de clarter. Nous pouvons extraire le code postale, le numéro du département ainsi que le nom de la commune ###
+
         col_index = df.columns.get_loc("Code_postal_et_commune")
 
+        # On récupère dans un dataframe temporaire les données importante
         df_temp = df["Code_postal_et_commune"].str.split('#', expand=True)
         df_temp.columns = ["Code_postale", "Commune"]
         df_temp["Département"] = df_temp["Code_postale"].str[0:2].astype(int)
 
         df.drop(columns=["Code_postal_et_commune"], inplace=True)
 
-
+        # On inserre les colonne créer
         df.insert(col_index, "Département", df_temp["Département"])
         df.insert(col_index + 1, "Code_postale", df_temp["Code_postale"])
         df.insert(col_index + 2, "Commune", df_temp["Commune"])
 
-        # On drop les valeur null
-        df = df.dropna(subset=["Nom_du_POI", "Categories_de_POI", 'Latitude', 'Longitude']) # ,"Adresse_postale"]) 
 
-        # Passage des dates en format date
+
+        ### Passage des dates en format datetime ###
         df["Date_de_mise_a_jour"] = pd.to_datetime(df["Date_de_mise_a_jour"])
 
-        
+        ### On supprime les catégorie de POI qui ne représente pas vraiment des déstination touristique selon une liste "cat_to_keep" ###
 
-        # --- Étape 1 : filtrer selon A_garder ---
+
         df = df[df["Categories_de_POI"].isin(self.cat_to_keep)].copy()
 
-        # --- Étape 2 : ajouter la catégorie simplifiée ---
-        def find_category(cat):
-            for key, values in categorie_dict.items():
+        ###  On redéfini les catégorie de POI avec des catégorie plus globale ###
+        def find_category(self, cat):
+            """ 
+            Fonction permettant de trouver la catégory dans laquelle la sous-catégorie de POI est contenue
+            
+            Args:
+                cat (String) : sous catégorie du POI
+            
+            Retunr:
+                key (String) :nom de la catégorie du POI
+            
+            """
+            for key, values in self.categorie_dict.items():
                 if cat in values:
                     return key
             return "Autre"  # si aucune correspondance trouvée
@@ -62,41 +90,86 @@ class DataTourismTransformer():
         df.insert(3, 'Categorie_simplifiee', df["Categories_de_POI"].apply(find_category)) 
 
 
+        ### Suppression des oublons en fonction du nombre de nan dans leur colonnes ###
+
+        # On compte le nombre de nan dans une ligne
         df["nb_nan"] = df.isna().sum(axis=1)
 
-        # Trier pour que la ligne avec le moins de NaN soit en premier dans chaque groupe
+        # On trie par nombre de nan
         df = df.sort_values(by=["Nom_du_POI", "nb_nan"], ascending=[True, True])
 
-        # Supprimer les doublons, en gardant la première (celle avec le moins de NaN)
+        # On supprime les doublons en gardant la première ligne
         df = df.drop_duplicates(subset="Nom_du_POI", keep="first")
 
-        # Supprimer la colonne temporaire
+        # On supprime la colonne temporaire
         df = df.drop(columns="nb_nan")
 
-        # (optionnel) Réindexer proprement
+        # On réindexe 
         df = df.reset_index(drop=True)
+
+
+        ### On récupère un cléf primaire pour la table a partire de l'URI id du POI ###
 
         df.insert(0, 'ID', df["URI_ID_du_POI"].str.split('/').str[-1])
 
+
+        ### On réindexe en fonction du département ###
+
         df = df.sort_values(by=['Département'], ascending=[True]).reset_index(drop=True)
+
+
+        ### On convertis les code postaux en floatant ###
         
         df['Code_postale'] = df['Code_postale'].astype(float)
 
+
+        ### On récupère les cluster id depuis la table des cluster en fonction des codes postaux ###
+
         df_cluster = self.df_cluster.rename(columns={'code_postal': 'Code_postale'})
 
-        # Fusion (jointure) sur le code postal
+        # On fusionne sur les codes postaux
         df_merged = df.merge(
             df_cluster[['Code_postale', 'zone_emploi']], 
             on='Code_postale', 
-            how='left'  # garde tous les POI même sans cluster
+            how='left' 
         )
 
-        # Renommer la colonne résultante pour plus de clarté
-        df_merged = df_merged.rename(columns={'zone_emploi': 'Cluster_id'})
+        # On renome la colonne pour plus de clarter
+        df = df_merged.rename(columns={'zone_emploi': 'Cluster_id'})
 
         print(f'Il reste {len(df)} data après nettoyage.') 
 
+        self.df_DataTourisme = df.copy()
+
         return df
+    
+    def to_csv(self):
+        """
+        Fonction pour sauvegarder le dataframe en csv
+        """
+        self.df_DataTourisme.to_csv('DataTourismClean.csv', index=False)
+
+    def compute_score(self, dict_poids, cluster):
+        """Focntion permettant de calculer le score d'un cluster en fonction de la liste des poids sur les catégories 
+        détermiber par les choix de l'utilisateur
+        Args:
+            dict_poids (Dict) : dictionnaire avec le nom de la catégorie et le poid associer
+            cluster (int) : le cluster id à calculer
+            df (Dataframe) : dataframe de DataTourisme nétoyer
+        Return:
+            score (int) : score d'attractiviter du cluster"""
+
+        df_count = self.df[self.df['Cluster_id'] == cluster].copy()
+
+        score = 0
+
+        for categorie, poid in dict_poids.items():
+            df_subset = df_count[df_count['Categorie_simplifiee'] == categorie]
+            
+            score += poid * df_subset.shape[0]
+
+        return score
+
 
 ### Cluster ###
 
