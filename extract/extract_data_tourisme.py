@@ -43,7 +43,7 @@ class DataTourismExtractor():
                         if requests_csv.status_code == 200:
                             
                             # On telecharge sous format CSV le fichier
-                            with open("data/"+ title, "wb") as f:
+                            with open("../DataTourism/"+ title, "wb") as f:
                                 f.write(requests_csv.content)
 
 
@@ -67,7 +67,7 @@ class DataTourismExtractor():
 
             # Concaténation des dataframe
             for chemin in self.list_chemin:
-                df = pd.concat([df, pd.read_csv("../data/"+ chemin)], ignore_index=True)
+                df = pd.concat([df, pd.read_csv("../DataTourism/"+ chemin)], ignore_index=True)
 
             print('Dataframe créer')
             return df
