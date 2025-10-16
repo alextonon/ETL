@@ -1,4 +1,5 @@
 import pandas as pd
+from ..extract.extract_data_tourisme import DataTourismExtractor
 
 class DataTourismTransformer():
     def __init__(self, df_tourism, cat_to_keep, categorie_dict, df_cluster) -> None:
@@ -159,7 +160,7 @@ class DataTourismTransformer():
         Return:
             score (int) : score d'attractiviter du cluster"""
 
-        df_count = self.df[self.df['Cluster_id'] == cluster].copy()
+        df_count = self.df_tourism[self.df_tourism['Cluster_id'] == cluster].copy()
 
         score = 0
 
@@ -174,6 +175,19 @@ class DataTourismTransformer():
 ### Cluster ###
 
 if __name__ == "__main__":
+
+    list_df = ["datatourisme-reg-ara.csv", "datatourisme-reg-bfc.csv", "datatourisme-reg-bre.csv",
+        "datatourisme-reg-cor.csv", "datatourisme-reg-cvl.csv", "datatourisme-reg-gde.csv",
+        "datatourisme-reg-hdf.csv", "datatourisme-reg-naq.csv", "datatourisme-reg-nor.csv",
+        "datatourisme-reg-idf.csv",  "datatourisme-reg-occ.csv", "datatourisme-reg-pac.csv",
+        "datatourisme-reg-pdl.csv"]
+    
+    extractor = DataTourismExtractor(list_df)
+    
+    # extractor.extract_csv()
+    df_tourism = extractor.extract_data()
+
+    print(df_tourism)
 
     # A garder score cacher qui compte sans un poids du client
     Logement = ['Hotel', 'BedAndBreakfast', 'HotelRestaurant', 'Hostel', 'CampingAndCaravanning',
@@ -264,4 +278,9 @@ if __name__ == "__main__":
         "Culture": Culture,
         "Sortie_soir": Sortie_soir,
     }
+
+    # tourism_transformer = DataTourismTransformer(df_tourism, Liste_to_keep, categorie_dict, df_cluster)
+
+    # df_dataToursime = tourism_transformer.clean_data()
+
 
