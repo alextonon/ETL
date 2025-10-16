@@ -188,6 +188,51 @@ class AttendanceTransformer() :
         df_affluences['nb_nights_city'] = df_affluences['nb_nights_dept'] * 1000 * df_affluences['capacity_city'] / df_affluences['capacity_dept']
 
         return df_affluences
+    
+
+    def affluences_cluster(self, df_affluences, df_communes) :
+        """
+        Aggrège les données du dataframe d'affluences par bassin d'emploi (i.e. cluster), en sommant
+        les valeurs des lignes correspondant à des communes appartenant au bassin concerné.
+        Args:
+            df_affluences (pd.DataFrame): DataFrame des affluences par mois et par commune, obtenu
+            en sortie de la fonction creation_dataframe_affluences
+            df_communes (pd.DataFrame): DataFrame contenant les informations relatives à chaque commune,
+            dont le bassin d'emploi en particulier.
+        Returns:
+            df_affluences_cluster (pd.DataFrame) : Dataframe final de la partie affluences
+        """
+
+        df_affluences_cluster = pd.DataFrame()
+
+        df_affluences['zone_emploi'] = None
+
+        for i in range (len(df_affluences_cluster)) :
+
+            insee_code = df_affluences.loc[i, 'insee_code']
+
+            zone_emploi = df_communes.loc[df_communes['code_insee'] == insee_code, 'zone_emploi'].iloc[0]
+
+            df_affluences.loc[i, 'zone_emploi'] = zone_emploi
+
+        
+        df_affluences_cluster = (df_affluences.groupby(
+                            ['zone_emploi', 'id_activity', 'activity_type', 'time_period'], as_index=False)
+                            .agg({
+                                'capacity_city': 'sum',
+                                'nb_nights_city': 'sum'
+                            })
+                            )
+        
+
+        df_affluences_cluster.rename(columns={
+                        'capacity_city': 'capacity_zone',
+                        'nb_nights_city': 'nb_nights_zone'
+                    }, inplace=True)
+        
+
+        return df_affluences_cluster
+
 
 
 if __name__ == "__main__" :
@@ -211,3 +256,10 @@ if __name__ == "__main__" :
     df_affluences = Transformer.creation_dataframe_affluences(df_capacite, df_nb_nuitees)
 
     print(df_affluences.head())
+
+    # A compléter avec la partie d'Antonin
+    #  df_communes = 
+
+    # df_affluence_cluster = Transformer.affluences_cluster(df_affluences, df_communes)
+
+    # print(df_affluence_cluster)
