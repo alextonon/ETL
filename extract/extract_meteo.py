@@ -34,7 +34,7 @@ class MeteoExtractor:
     def process_data(self):
         # Logic to process the extracted data
         self.df = pd.read_csv("donnees-synop-essentielles-omm.csv", sep=';')
-        
+
         self.df.drop(columns=["Rafale sur les 10 dernières minutes","Précipitations dans les 3 dernières heures"], inplace=True)
 
         self.df.dropna(inplace=True)
@@ -56,9 +56,13 @@ class MeteoExtractor:
             "Rafales sur une période": "mean"
         })
         )
-        
 
-        
+    def get_station_table(self):
+        self.df.groupby([
+            "Latitude", "Longitude",
+            "department (name)", "department (code)",
+            "communes (code)", "Nom"]).unique()
+
 
 if __name__ == "__main__":
     extractor = MeteoExtractor()
