@@ -78,16 +78,3 @@ class DataTourismExtractor():
         
 
 
-if __name__ == "__main__":
-    list_df = ["datatourisme-reg-ara.csv", "datatourisme-reg-bfc.csv", "datatourisme-reg-bre.csv",
-        "datatourisme-reg-cor.csv", "datatourisme-reg-cvl.csv", "datatourisme-reg-gde.csv",
-        "datatourisme-reg-hdf.csv", "datatourisme-reg-naq.csv", "datatourisme-reg-nor.csv",
-        "datatourisme-reg-idf.csv",  "datatourisme-reg-occ.csv", "datatourisme-reg-pac.csv",
-        "datatourisme-reg-pdl.csv"]
-    
-    extractor = DataTourismExtractor(list_df)
-    
-    # extractor.extract_csv()
-    df = extractor.extract_data()
-
-    print(df)
