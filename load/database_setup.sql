@@ -8,7 +8,7 @@ DROP TABLE IF EXISTS meteo;
 DROP TABLE IF EXISTS affluences;
 
 -- Table communes : contient les informations relatives à chaque commune française
-CREATE TABLE communes (
+" CREATE TABLE communes (
     id SERIAL PRIMARY KEY,
     code_insee VARCHAR(5),
     nom_standard VARCHAR(100),
@@ -28,7 +28,13 @@ CREATE TABLE communes (
     longitude_mairie FLOAT,
     grille_densite INT,
     grille_densite_texte VARCHAR(100)
-);
+);" 
+
+CREATE TABLE communes (
+    code_cluster VARCHAR(5) PRIMARY KEY,
+    code_insee_centre_zone_emploi,nom_standard,latitude_centre,longitude_centre
+
+)
 
 -- Table tourisme : contient les informations relatives aux points d'intérêt du territoire français
 CREATE TABLE tourisme (
@@ -45,6 +51,19 @@ CREATE TABLE affluences (
     capacity_zone FLOAT,
     nb_nights_zone FLOAT
 )
+
+-- Table meteo : contient les données relatives à la météo de chaque zone d'emploi du territoire français
+CREATE TABLE meteo (
+    code_cluster INT,
+    Mois INT(2)
+    Pression station FLOAT
+    Température (°C) FLOAT
+    Précipitations dans les 24 dernières heures FLOAT
+    Rafales sur une période FLOAT
+    PRIMARY KEY (code_cluster, mois)
+)
+
+
 
 -- Create indexes for better query performance
 CREATE INDEX idx_code_insee ON communes(code_insee);

@@ -79,3 +79,5 @@ if __name__ == "__main__":
     cluster_mapping.to_csv("data/cluster_mapping.csv")
 
     print("Données nettoyées et sauvegardées dans 'data/communes_france_cleaned.csv'")
+
+    print(cluster_mapping)
