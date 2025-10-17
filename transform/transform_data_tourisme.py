@@ -1,5 +1,7 @@
 import pandas as pd
-from ..extract.extract_data_tourisme import DataTourismExtractor
+from extract.extract_data_tourisme import DataTourismExtractor
+
+import pandas as pd
 
 class DataTourismTransformer():
     def __init__(self, df_tourism, cat_to_keep, categorie_dict, df_cluster) -> None:
@@ -50,8 +52,11 @@ class DataTourismTransformer():
         col_index = df.columns.get_loc("Code_postal_et_commune")
 
         # On récupère dans un dataframe temporaire les données importante
-        df_temp = df["Code_postal_et_commune"].str.split('#', expand=True)
+        df_temp = df["Code_postal_et_commune"].str.replace('#', ' ', regex=False).str.replace('+', '', regex=False).str.split(n=1, expand=True)
+        # df_temp = df["Code_postal_et_commune"]
+
         df_temp.columns = ["Code_postale", "Commune"]
+        # df['Code_postale'] = df['Code_postale'].astype(str).str.extract('(\d+)')[0].astype(int)
         df_temp["Département"] = df_temp["Code_postale"].str[0:2].astype(int)
 
         df.drop(columns=["Code_postal_et_commune"], inplace=True)
@@ -72,7 +77,7 @@ class DataTourismTransformer():
         df = df[df["Categories_de_POI"].isin(self.cat_to_keep)].copy()
 
         ###  On redéfini les catégorie de POI avec des catégorie plus globale ###
-        def find_category(self, cat):
+        def find_category(cat):
             """ 
             Fonction permettant de trouver la catégory dans laquelle la sous-catégorie de POI est contenue
             
@@ -112,6 +117,7 @@ class DataTourismTransformer():
         ### On récupère un cléf primaire pour la table a partire de l'URI id du POI ###
 
         df.insert(0, 'ID', df["URI_ID_du_POI"].str.split('/').str[-1])
+        df = df.dropna(subset=["ID"])
 
 
         ### On réindexe en fonction du département ###
@@ -130,13 +136,15 @@ class DataTourismTransformer():
 
         # On fusionne sur les codes postaux
         df_merged = df.merge(
-            df_cluster[['Code_postale', 'zone_emploi']], 
+            df_cluster[['Code_postale', 'code_cluster']], 
             on='Code_postale', 
             how='left' 
         )
 
         # On renome la colonne pour plus de clarter
-        df = df_merged.rename(columns={'zone_emploi': 'Cluster_id'})
+        df = df_merged.rename(columns={'code_cluster': 'Cluster_id'})
+
+        df = df.dropna(subset=["Cluster_id"])
 
         print(f'Il reste {len(df)} data après nettoyage.') 
 
@@ -172,22 +180,31 @@ class DataTourismTransformer():
         return score
 
 
+
+
+
+
 ### Cluster ###
 
 if __name__ == "__main__":
+
+    
+
+    ### Cluster ###
+
 
     list_df = ["datatourisme-reg-ara.csv", "datatourisme-reg-bfc.csv", "datatourisme-reg-bre.csv",
         "datatourisme-reg-cor.csv", "datatourisme-reg-cvl.csv", "datatourisme-reg-gde.csv",
         "datatourisme-reg-hdf.csv", "datatourisme-reg-naq.csv", "datatourisme-reg-nor.csv",
         "datatourisme-reg-idf.csv",  "datatourisme-reg-occ.csv", "datatourisme-reg-pac.csv",
         "datatourisme-reg-pdl.csv"]
-    
+
     extractor = DataTourismExtractor(list_df)
-    
+
     # extractor.extract_csv()
     df_tourism = extractor.extract_data()
 
-    print(df_tourism)
+    # print(df_tourism)
 
     # A garder score cacher qui compte sans un poids du client
     Logement = ['Hotel', 'BedAndBreakfast', 'HotelRestaurant', 'Hostel', 'CampingAndCaravanning',
@@ -279,8 +296,10 @@ if __name__ == "__main__":
         "Sortie_soir": Sortie_soir,
     }
 
-    # tourism_transformer = DataTourismTransformer(df_tourism, Liste_to_keep, categorie_dict, df_cluster)
+    df_cluster = pd.read_csv('../data/communes_france_cleaned.csv')
 
-    # df_dataToursime = tourism_transformer.clean_data()
 
+    tourism_transformer = DataTourismTransformer(df_tourism, Liste_to_keep, categorie_dict, df_cluster)
+
+    df_dataToursime = tourism_transformer.clean_data()
 
