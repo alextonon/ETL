@@ -1,2 +1,3 @@
 data/donnees-synop-essentielles-omm.csv
-.pyc
+*.pyc
+__pycache__/
