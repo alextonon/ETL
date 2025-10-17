@@ -30,3 +30,12 @@ class MeteoExtractor:
 
         self.df = pd.read_csv(data_source, sep=';')
 
+        
+
+if __name__ == '__main__' :
+
+    Extractor = MeteoExtractor()
+
+    df_meteo = Extractor.get_brute_dataset()
+
+    print(df_meteo.head())
