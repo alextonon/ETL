@@ -55,19 +55,39 @@ class TownTransformer() :
         if self.df_town.empty:
             print("⚠️  Pas de données pour créer le mapping")
             return {}
+        
 
         self.cluster_mapping = (
             self.df_town.groupby("code_cluster")
             .agg({
                 "code_insee_centre_zone_emploi": "first",
-                "nom_standard": "first",
                 "latitude_centre": "mean",
                 "longitude_centre": "mean"
             })
         )
 
+        for cluster_code in self.cluster_mapping.index:
+            biggest_town = self.get_biggest_town_cluster(cluster_code)
+            self.cluster_mapping.at[cluster_code, 'ville_principale'] = biggest_town['nom_standard']
 
         return self.cluster_mapping
+    
+    def get_biggest_town_cluster(self, cluster_code):
+        """
+        Fonction permettant de récupérer la plus grande commune d'un cluster donné.
+        Args:
+            cluster_code (int): Code du cluster.
+        Returns:
+            biggest_town (pd.Series): Série contenant les informations de la plus grande commune du cluster.
+        """
+        if self.df_town.empty:
+            print("⚠️  Pas de données pour récupérer la plus grande commune")
+            return None
+
+        cluster_towns = self.df_town[self.df_town['code_cluster'] == cluster_code]
+        biggest_town = cluster_towns.loc[cluster_towns['population'].idxmax()]
+
+        return biggest_town
 
 if __name__ == "__main__":
     df_town = pd.read_csv("data/communes-france-2025.csv", sep=",")
