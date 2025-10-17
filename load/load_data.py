@@ -18,13 +18,66 @@ DATABASE_CONFIG = {
     'password': 'password', 
     'host': 'localhost',
     'port': '5432',
-    'database': 'airlife_db'
+    'database': 'voyagevoyage_db'
 }
 
 def get_connection_string():
     """Build PostgreSQL connection string"""
     return f"postgresql://{DATABASE_CONFIG['username']}:{DATABASE_CONFIG['password']}@{DATABASE_CONFIG['host']}:{DATABASE_CONFIG['port']}/{DATABASE_CONFIG['database']}"
 
+
+
+
+def load_to_database_meteo(meteo_df):
+    """
+    Load meteo cleaned data into PostgreSQL database
+    
+    Args:
+    meteo_df (pandas.DataFrame): Cleaned meteo data
+    """
+    print("💾 Loading METEO data to PostgreSQL database...")
+
+    connection_string = get_connection_string()
+
+    try:
+        # TODO: Create SQLAlchemy engine
+        engine = create_engine(connection_string)
+        
+        # TODO: Load METEO data
+        # Use pandas to_sql method to insert data
+        # 
+        # Parameters explanation:
+        # - 'meteo': table name in database
+        # - engine: database connection
+        # - if_exists='replace': replace table if it exists (use 'append' to add to existing data)
+        # - index=False: don't include pandas row index as a column
+        meteo_df.to_sql('meteo',engine,if_exists='replace',index='False')
+        
+        # Check if meteo_df is not empty before loading
+        if not meteo_df.empty :
+            meteo_df.to_sql('meteo', engine, if_exists='replace', index=False)
+        
+        # TODO: Print loading statistics
+        print(f"✅ Loaded {len(meteo_df)} meteo to database")
+        if not meteo_df.empty:
+            print(f"✅ Loaded {len(flights_df)} flights to database")
+        else:
+            print("ℹ️  No flight data to load")
+        
+    except Exception as e:
+        print(f"❌ Error loading data to database: {e}")
+        print("💡 Make sure:")
+        print("   - PostgreSQL is running")
+        print("   - Database 'airlife_db' exists") 
+        print("   - Username and password are correct")
+        print("   - Tables are created (run database_setup.sql)")
+
+
+
+
+
+
+##### AIRLIFE EXAMPLE 
 def load_to_database(airports_df, flights_df):
     """
     Load cleaned data into PostgreSQL database

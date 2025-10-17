@@ -157,7 +157,7 @@ class AttendanceTransformer() :
     def creation_dataframe_affluences(self,df_capacite, df_nb_nuitees) :
         """
         Création du dataframe d'affluences qui servira à l'algorithme global Voyage Voyage. Le but est 
-        de fournir, pour chaque cluster spatial (cf  transform.clusterizer.py), un nombre de 
+        de fournir, pour chaque cluster spatial (cf  transform_clusterizer.py), un nombre de 
         touristes hébergés dans chaque type d'hébergement, pour chaque mois de l'année.
         Le but de cette démarche sera de déterminer dans quelles zones il y a le plus et le moins de
         touristes à chaque période de l'année.
@@ -205,15 +205,15 @@ class AttendanceTransformer() :
 
         df_affluences_cluster = pd.DataFrame()
 
-        df_affluences['zone_emploi'] = None
+        df_affluences['code_insee_centre_zone_emploi'] = None
 
         for i in range (len(df_affluences_cluster)) :
 
             insee_code = df_affluences.loc[i, 'insee_code']
 
-            zone_emploi = df_communes.loc[df_communes['code_insee'] == insee_code, 'zone_emploi'].iloc[0]
+            zone_emploi = df_communes.loc[df_communes['code_insee'] == insee_code, 'code_insee_centre_zone_emploi'].iloc[0]
 
-            df_affluences.loc[i, 'zone_emploi'] = zone_emploi
+            df_affluences.loc[i, 'code_insee_centre_zone_emploi'] = zone_emploi
 
         
         df_affluences_cluster = (df_affluences.groupby(
@@ -242,7 +242,6 @@ if __name__ == "__main__" :
     Transformer = AttendanceTransformer()
 
     df_capacite = Extractor.extract_data_capacite()
-
     df_capacite = Transformer.transform_data_capacite(df_capacite)
 
     print(df_capacite.head())
@@ -258,8 +257,8 @@ if __name__ == "__main__" :
     print(df_affluences.head())
 
     # A compléter avec la partie d'Antonin
-    #  df_communes = 
+    df_communes = pd.read_csv("data/cluster_mapping.csv")
 
-    # df_affluence_cluster = Transformer.affluences_cluster(df_affluences, df_communes)
+    df_affluence_cluster = Transformer.affluences_cluster(df_affluences, df_communes)
 
-    # print(df_affluence_cluster)
+    print(df_affluence_cluster.head())
