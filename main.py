@@ -22,9 +22,9 @@ from transform.transform_communes import TownTransformer
 from transform.transform_meteo import TransformMeteo
 from transform.transform_data_tourisme import DataTourismTransformer
 
+from load.load_data import get_connection_string, load_to_database_affluence, load_to_database_clusters, load_to_database_meteo, test_database_connection 
+#from load.load_data import verify_data, run_sample_queries
 
-#from extract.transform_data import 
-#from extract.load_data import 
 
 def main():
 
@@ -35,10 +35,10 @@ def main():
 
 
     #### ----- COMMUNES ---- ####
-    print("--- Starting Town ETL Pipeline...")
+    print("--- Starting TOWN ETL Pipeline...")
     print("=" * 50)
 
-    #### -- Town Extract
+    #### -- TOWN Extract
     Town_Extract = TownExtractor()
 
     ### à changer avec la fonction qui importe depuis le site puis sauvegarde 
@@ -61,7 +61,7 @@ def main():
 
     #### ----- AFFLUENCE ---- ####
 
-    print("--- Starting Attendance ETL Pipeline...")
+    print("--- Starting AFFLUENCE ETL Pipeline...")
     print("=" * 50)
     
     #### -- Attendance Extract 
@@ -70,8 +70,8 @@ def main():
     df_capacite = Attendance_Extractor.extract_data_capacite()
     df_nb_nuitees = Attendance_Extractor.extract_data_nb_nuitees()
 
-    df_capacite.to_csv("data/data_extracted/df_capacite.csv")
-    df_nb_nuitees.to_csv("data/data_extracted/df_nb_nuitees.csv")
+    df_capacite.to_csv("data/data_extracted/df_capacite.csv", index=False)
+    df_nb_nuitees.to_csv("data/data_extracted/df_nb_nuitees.csv", index=False)
 
     #### -- Affluence Transform
     Attendance_Transformer = AttendanceTransformer()
@@ -84,15 +84,87 @@ def main():
 
     df_affluence_cluster = AttendanceTransformer.affluences_cluster(df_affluences, df_towncleaned)
 
-    df_affluence_cluster.to_csv("data/data_transformed/cluster_affluence.csv")
+    df_affluence_cluster.to_csv("data/data_transformed/cluster_affluence.csv", index = False)
 
 
     
+    #### ----- METEO ---- ####
 
+    print("--- Starting METEO ETL Pipeline...")
+    print("=" * 50)
+
+    #### -- Meteo Extract 
+
+    MeteoExtractor = MeteoExtractor()
+    df_meteo = MeteoExtractor.get_brute_dataset()
+
+    #%%%% trop long ?
+    #df_meteo.to_csv("data/data_extracted/df_meteo_brut.csv")
+
+
+    #### -- Meteo Transform : A MODIFIER
+
+    MeteoTransformer = TransformMeteo(df_meteo)
+
+    #df_meteo_cleaned = transformer.process_data()
+    #df_meteo_cleaned.to_csv("data/data_transformed/meteo_cleaned.csv", index=False)
+    df_meteo_cleaned = pd.read_csv("data/meteo_cleaned.csv")
+    TransformMeteo.df_mensuel = df_meteo_cleaned  
+
+    df_cluster = pd.read_csv("data/cluster_mapping.csv")
+    df_cluster_meteo = TransformMeteo.link_clusters_with_meteo(df_cluster)
+    df_cluster_meteo.to_csv("data/data_transformed/cluster_meteo.csv", index=False)
+
+
+    #### ----- DATA TOURISM ---- ####
+
+    print("--- Starting DATA TOURISM ETL Pipeline...")
+    print("=" * 50)
+
+    #### -- DataTourism Extract 
+
+    # ...
+
+    #### -- Datatourism Transform : A MODIFIER
     
+    
+    # ...
 
+
+    #### LOADING  ####
+
+
+
+    if test_database_connection():
+        print("\nDatabase connection OK. Ready for data loading!")
+        
+      
+        # Test loading 
+        print('========== LOADING CLUSTERS ========== ')
+        load_to_database_clusters(cluster_mapping)
+
+        print('========== LOADING METEO ========== ')
+        load_to_database_meteo(df_cluster_meteo)
+
+        print('========== LOADING AFFLUENCE ========== ')
+        load_to_database_affluence(df_affluence_cluster)
+
+        print('========== LOADING DATATOURISM ========== ')
+        #load_to_database_datatourism()
+
+       
+
+
+
+    else:
+        print("Fix database connection before testing loading functions")
+
+
+
+
+    ##### LOADING : A FAIRE
   
-
+        #verify_data, run_sample_queries
 
 
 

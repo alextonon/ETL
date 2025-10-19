@@ -310,9 +310,11 @@ class AttendanceTransformer() :
         if n_missing > 0:
             print(f"Attention : {n_missing} communes sans code_cluster dans df_communes")
 
-        
+
+
 
         return df_affluences_cluster
+
 
 
 
@@ -350,7 +352,7 @@ if __name__ == "__main__" :
     print("### --- df_affluence_cluster --- ###")    
     df_communes = pd.read_csv("data/communes_france_cleaned.csv", low_memory = False)
     df_affluence_cluster = Transformer.affluences_cluster(df_affluences, df_communes)
-    df_affluence_cluster.to_csv("data/data_transformed/cluster_affluence.csv")
+    df_affluence_cluster.to_csv("data/data_transformed/cluster_affluence.csv", index=False)
     print(df_affluence_cluster.head())
 
     

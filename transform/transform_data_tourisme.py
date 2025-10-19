@@ -1,7 +1,7 @@
 import pandas as pd
 from extract.extract_data_tourisme import DataTourismExtractor
 
-import pandas as pd
+
 
 class DataTourismTransformer():
     def __init__(self, df_tourism, cat_to_keep, categorie_dict, df_cluster) -> None:
@@ -14,16 +14,16 @@ class DataTourismTransformer():
 
     def clean_data(self):
         """
-        Fonction permettant de nétoyer les donnée brut du dataset DataTourisme. Cette fonction réalise plusieur
-        nettoyage tel que la suppression de colonne et de ligne inutile, la reclassification des point of intrest (POI),
-        ou encore l'ajout de colonnes pour un comprehension plus simple du dataset
+        Fonction permettant de nétoyer les donnée brut du dataset DataTourisme. Cette fonction réalise plusieurs
+        nettoyages tels que la suppression de colonnes et de lignes inutiles, la reclassification des points of interest (POI),
+        ou encore l'ajout de colonnes pour une comprehension plus simple du dataset
 
         Returns:
             df (pd.DataFrame): DataFrame nettoyé.
         """
 
         if self.df_tourism.empty:
-            print("⚠️  Pas de données a néttoyer")
+            print("⚠️  Pas de données à nettoyer")
             return self.df_tourism
         
         print(f"🧹 Nettoyage des données...")
@@ -79,7 +79,7 @@ class DataTourismTransformer():
         ###  On redéfini les catégorie de POI avec des catégorie plus globale ###
         def find_category(cat):
             """ 
-            Fonction permettant de trouver la catégory dans laquelle la sous-catégorie de POI est contenue
+            Fonction permettant de trouver la catégorie dans laquelle la sous-catégorie de POI est contenue
             
             Args:
                 cat (String) : sous catégorie du POI
@@ -114,7 +114,7 @@ class DataTourismTransformer():
         df = df.reset_index(drop=True)
 
 
-        ### On récupère un cléf primaire pour la table a partire de l'URI id du POI ###
+        ### On récupère un cléf primaire pour la table a partir de l'URI id du POI ###
 
         df.insert(0, 'ID', df["URI_ID_du_POI"].str.split('/').str[-1])
         df = df.dropna(subset=["ID"])
@@ -159,14 +159,14 @@ class DataTourismTransformer():
         self.df_DataTourisme.to_csv('DataTourismClean.csv', index=False)
 
     def compute_score(self, dict_poids, cluster):
-        """Focntion permettant de calculer le score d'un cluster en fonction de la liste des poids sur les catégories 
-        détermiber par les choix de l'utilisateur
+        """Fonction permettant de calculer le score d'un cluster en fonction de la liste des poids sur les catégories 
+        déterminer par les choix de l'utilisateur
         Args:
             dict_poids (Dict) : dictionnaire avec le nom de la catégorie et le poid associer
             cluster (int) : le cluster id à calculer
-            df (Dataframe) : dataframe de DataTourisme nétoyer
+            df (Dataframe) : dataframe de DataTourisme nettoyé
         Return:
-            score (int) : score d'attractiviter du cluster"""
+            score (int) : score d'attractivité du cluster"""
 
         df_count = self.df_tourism[self.df_tourism['Cluster_id'] == cluster].copy()
 
@@ -296,10 +296,15 @@ if __name__ == "__main__":
         "Sortie_soir": Sortie_soir,
     }
 
-    df_cluster = pd.read_csv('../data/communes_france_cleaned.csv')
+    df_cluster = pd.read_csv('data/data_transformed/communes_france_cleaned.csv', low_memory=False)
+   
 
 
     tourism_transformer = DataTourismTransformer(df_tourism, Liste_to_keep, categorie_dict, df_cluster)
 
-    df_dataToursime = tourism_transformer.clean_data()
+    df_dataTourisme = tourism_transformer.clean_data()
+
+    df_dataTourisme.to_csv('data/data_transformed/datatourism_cleaned.csv', index=False)
+    print("Data enregistrée avec succès")
+
 
