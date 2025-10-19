@@ -32,7 +32,11 @@ DROP TABLE IF EXISTS affluences;
 
 CREATE TABLE communes (
     code_cluster VARCHAR(5) PRIMARY KEY,
-    code_insee_centre_zone_emploi,nom_standard,latitude_centre,longitude_centre
+    code_insee_centre_zone_emploi VARCHAR(5)
+    nom_standard VARCHAR(100)
+    latitude_centre FLOAT
+    longitude_centre FLOAT
+    ville_principale TEXT
 
 )
 

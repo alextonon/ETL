@@ -108,10 +108,10 @@ if __name__ == "__main__":
     transformer = TransformMeteo(df_meteo)
 
     df_meteo_cleaned = transformer.process_data()
-    df_meteo_cleaned.to_csv("data/meteo_cleaned.csv", index=False)
+    df_meteo_cleaned.to_csv("data/data_transformed/meteo_cleaned.csv", index=False)
 
     df_cluster = pd.read_csv("data/cluster_mapping.csv")
 
     df_cluster_meteo = transformer.link_clusters_with_meteo(df_cluster)
 
-    df_cluster_meteo.to_csv("data/cluster_meteo.csv", index=False)
+    df_cluster_meteo.to_csv("data/data_transformed/cluster_meteo.csv", index=False)

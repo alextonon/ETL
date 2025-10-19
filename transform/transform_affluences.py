@@ -246,24 +246,31 @@ if __name__ == "__main__" :
 
     Transformer = AttendanceTransformer()
 
-    df_capacite = Extractor.extract_data_capacite()
-    df_capacite = Transformer.transform_data_capacite(df_capacite)
+    #df_capacite = Extractor.extract_data_capacite()
+    #df_nb_nuitees = Extractor.extract_data_nb_nuitees()
 
+    df_capacite = pd.read_csv("data/data_extracted/df_capacite.csv")
+    df_nb_nuitees = pd.read_csv("data/data_extracted/df_nb_nuitees.csv")
+
+    
+    
+
+    print("### --- df_capacite transformed--- ###")
+    df_capacite = Transformer.transform_data_capacite(df_capacite)
     print(df_capacite.head())
 
-    df_nb_nuitees = Extractor.extract_data_nb_nuitees()
-
+    print("### --- df_nb_nuitees transformed --- ###")
     df_nb_nuitees = Transformer.transform_data_nb_nuitees(df_nb_nuitees)
-
     print(df_nb_nuitees.head())
 
-    df_affluences = Transformer.creation_dataframe_affluences(df_capacite, df_nb_nuitees)
 
+    print("### --- df_affluences --- ###")
+    df_affluences = Transformer.creation_dataframe_affluences(df_capacite, df_nb_nuitees)
     print(df_affluences.head())
 
-    # A compléter avec la partie d'Antonin
-    df_communes = pd.read_csv("data/communes_france_cleaned.csv")
 
+    print("### --- df_affluence_cluster --- ###")    
+    df_communes = pd.read_csv("data/communes_france_cleaned.csv", low_memory = False)
     df_affluence_cluster = Transformer.affluences_cluster(df_affluences, df_communes)
-
+    df_affluence_cluster.to_csv("data/data_transformed/cluster_affluence.csv")
     print(df_affluence_cluster.head())

@@ -48,12 +48,12 @@ def main():
     #### -- Town Transform
     Town_Transformer = TownTransformer(df_town)
     df_towncleaned = Town_Transformer.clean_data()
-    df_towncleaned.to_csv("data/communes_france_cleaned.csv", index=False)
+    df_towncleaned.to_csv("data/data_transformed/communes_france_cleaned.csv", index=False)
 
     cluster_mapping = Town_Transformer.create_cluster_mapping()
-    cluster_mapping.to_csv("data/cluster_mapping.csv")
+    cluster_mapping.to_csv("data/data_transformed/cluster_mapping.csv")
 
-    print("Données nettoyées et sauvegardées dans 'data/communes_france_cleaned.csv'")
+    print("Données nettoyées et sauvegardées dans '/data_transformed")
 
     print(cluster_mapping)
     
@@ -69,6 +69,9 @@ def main():
 
     df_capacite = Attendance_Extractor.extract_data_capacite()
     df_nb_nuitees = Attendance_Extractor.extract_data_nb_nuitees()
+
+    df_capacite.to_csv("data/data_extracted/df_capacite.csv")
+    df_nb_nuitees.to_csv("data/data_extracted/df_nb_nuitees.csv")
 
     #### -- Affluence Transform
     Attendance_Transformer = AttendanceTransformer()

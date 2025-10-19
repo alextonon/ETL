@@ -38,4 +38,7 @@ if __name__ == '__main__' :
 
     df_meteo = Extractor.get_brute_dataset()
 
+    #%%%% trop long ?
+    df_meteo.to_csv("data/data_extracted/df_meteo_brut.csv")
+
     print(df_meteo.head())
