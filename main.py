@@ -55,7 +55,7 @@ def main():
 
     print("Données nettoyées et sauvegardées dans '/data_transformed")
 
-    print(cluster_mapping)
+    
     
 
 
@@ -81,16 +81,15 @@ def main():
 
     df_affluences = Attendance_Transformer.creation_dataframe_affluences(df_capacite, df_nb_nuitees)
 
-    print(df_affluences.head())
 
-    df_affluence_cluster = AttendanceTransformer.affluences_cluster(df_affluences, cluster_mapping)
+    df_affluence_cluster = AttendanceTransformer.affluences_cluster(df_affluences, df_towncleaned)
 
-    # A compléter avec la partie d'Antonin
-    #  df_communes = 
+    df_affluence_cluster.to_csv("data/data_transformed/cluster_affluence.csv")
 
-    # df_affluence_cluster = Transformer.affluences_cluster(df_affluences, df_communes)
 
-    # print(df_affluence_cluster)
+    
+
+    
 
   
 

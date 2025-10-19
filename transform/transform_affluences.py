@@ -190,53 +190,131 @@ class AttendanceTransformer() :
         return df_affluences
     
 
-    def affluences_cluster(self, df_affluences, df_communes) :
-        """
-        Aggrège les données du dataframe d'affluences par bassin d'emploi (i.e. cluster), en sommant
-        les valeurs des lignes correspondant à des communes appartenant au bassin concerné.
-        Args:
-            df_affluences (pd.DataFrame): DataFrame des affluences par mois et par commune, obtenu
-            en sortie de la fonction creation_dataframe_affluences
-            df_communes (pd.DataFrame): DataFrame contenant les informations relatives à chaque commune,
-            dont le bassin d'emploi en particulier.
-        Returns:
-            df_affluences_cluster (pd.DataFrame) : Dataframe final de la partie affluences
-        """
+    # def affluences_cluster(self, df_affluences, df_communes) :
+    #     """
+    #     Aggrège les données du dataframe d'affluences par bassin d'emploi (i.e. cluster), en sommant
+    #     les valeurs des lignes correspondant à des communes appartenant au bassin concerné.
+    #     Args:
+    #         df_affluences (pd.DataFrame): DataFrame des affluences par mois et par commune, obtenu
+    #         en sortie de la fonction creation_dataframe_affluences
+    #         df_communes (pd.DataFrame): DataFrame contenant les informations relatives à chaque commune,
+    #         dont le bassin d'emploi en particulier.
+    #     Returns:
+    #         df_affluences_cluster (pd.DataFrame) : Dataframe final de la partie affluences
+    #     """
 
-        df_affluences_cluster = pd.DataFrame()
+    #     df_affluences_cluster = pd.DataFrame()
 
-        df_affluences['zone_emploi'] = None
+    #     df_affluences['zone_emploi'] = None
 
-        for i in range (len(df_affluences)) :
+    #     for i in range (len(df_affluences)) :
 
-            insee_code = df_affluences.loc[i, 'insee_code']
+    #         insee_code = df_affluences.loc[i, 'insee_code']
 
-            zone_emploi_arr = df_communes.loc[df_communes['code_insee'] == insee_code, 'code_insee_centre_zone_emploi'].values
-            zone_emploi = zone_emploi_arr[0] if len(zone_emploi_arr) else None   # <- SCALAIRE
-            df_affluences.loc[i, 'zone_emploi'] = zone_emploi
-            df_affluences.loc[i, 'code_cluster'] = df_communes.loc[df_communes['code_insee'] == insee_code, 'code_cluster'].values[0] if len(zone_emploi_arr) else None
+    #         zone_emploi_arr = df_communes.loc[df_communes['code_insee'] == insee_code, 'code_insee_centre_zone_emploi'].values
+    #         zone_emploi = zone_emploi_arr[0] if len(zone_emploi_arr) else None   # <- SCALAIRE
+    #         df_affluences.loc[i, 'zone_emploi'] = zone_emploi
+    #         df_affluences.loc[i, 'code_cluster'] = df_communes.loc[df_communes['code_insee'] == insee_code, 'code_cluster'].values[0] if len(zone_emploi_arr) else None
             
-        print(df_affluences.head())
+    #     print(df_affluences.head())
         
         
-        df_affluences_cluster = (df_affluences.groupby(
-                            ['zone_emploi', 'id_activity', 'activity_type', 'time_period', 'code_cluster'], as_index=False)
-                            .agg({
-                                'capacity_city': 'sum',
-                                'nb_nights_city': 'sum'
-                            })
-                            )
+    #     df_affluences_cluster = (df_affluences.groupby(
+    #                         ['zone_emploi', 'id_activity', 'activity_type', 'time_period', 'code_cluster'], as_index=False)
+    #                         .agg({
+    #                             'capacity_city': 'sum',
+    #                             'nb_nights_city': 'sum'
+    #                         })
+    #                         )
         
 
+    #     df_affluences_cluster.rename(columns={
+    #                     'capacity_city': 'capacity_zone',
+    #                     'nb_nights_city': 'nb_nights_zone'
+    #                 }, inplace=True)
+
+    #     print(df_affluences_cluster.head())
+        
+
+    #     return df_affluences_cluster
+    
+    def affluences_cluster(self, df_affluences, df_communes):
+        """
+        Aggrège les données d'affluence par cluster (bassin d'emploi élargi),
+        en sommant les valeurs des communes appartenant au même cluster.
+
+        Args:
+            df_affluences (pd.DataFrame): Données d'affluence par commune.
+            df_communes (pd.DataFrame): Données des communes avec leur code_cluster.
+
+        Returns:
+            pd.DataFrame: Données agrégées par cluster et type d'activité.
+        """
+
+        # Vérifications de base
+        required_cols_aff = {
+            'insee_code', 'dept_code', 'id_activity', 'activity_type',
+            'capacity_city', 'capacity_dept', 'time_period',
+            'nb_nights_city', 'nb_nights_dept'
+        }
+        required_cols_com = {'code_insee', 'code_insee_centre_zone_emploi', 'code_cluster'}
+
+        missing_aff = required_cols_aff - set(df_affluences.columns)
+        missing_com = required_cols_com - set(df_communes.columns)
+
+        if missing_aff:
+            raise KeyError(f"Colonnes manquantes dans df_affluences: {missing_aff}")
+        if missing_com:
+            raise KeyError(f"Colonnes manquantes dans df_communes: {missing_com}")
+
+        # Harmonisation des types (important pour la jointure)
+        df_affluences['insee_code'] = df_affluences['insee_code'].astype(str)
+        df_communes['code_insee'] = df_communes['code_insee'].astype(str)
+
+        # Jointure pour ajouter code_cluster
+        df_merged = df_affluences.merge(
+            df_communes[['code_insee', 'code_insee_centre_zone_emploi', 'code_cluster']],
+            how='left',
+            left_on='insee_code',
+            right_on='code_insee'
+        )
+
+        # Nettoyage
+        df_merged.drop(columns=['code_insee'], inplace=True)
+        df_merged.rename(columns={'code_insee_centre_zone_emploi': 'zone_emploi'}, inplace=True)
+
+        # Agrégation par cluster
+        df_affluences_cluster = (
+            df_merged.groupby(
+                ['code_cluster', 'id_activity', 'activity_type', 'time_period'],
+                as_index=False
+            )
+            .agg({
+                'capacity_city': 'sum',
+                'nb_nights_city': 'sum'
+            })
+        )
+
+        # ✍️ Renommage final
         df_affluences_cluster.rename(columns={
-                        'capacity_city': 'capacity_zone',
-                        'nb_nights_city': 'nb_nights_zone'
-                    }, inplace=True)
+            'capacity_city': 'capacity_zone',
+            'nb_nights_city': 'nb_nights_zone'
+        }, inplace=True)
 
-        print(df_affluences_cluster.head())
+        # Réorganisation des colonnes : code_cluster en premier
+        ordered_cols = ['code_cluster'] + [col for col in df_affluences_cluster.columns if col != 'code_cluster']
+        df_affluences_cluster = df_affluences_cluster[ordered_cols]
+
+        # Vérifie s’il reste des lignes sans cluster
+        n_missing = df_merged['code_cluster'].isna().sum()
+        if n_missing > 0:
+            print(f"Attention : {n_missing} communes sans code_cluster dans df_communes")
+
         
 
         return df_affluences_cluster
+
+
 
 
 
@@ -274,3 +352,7 @@ if __name__ == "__main__" :
     df_affluence_cluster = Transformer.affluences_cluster(df_affluences, df_communes)
     df_affluence_cluster.to_csv("data/data_transformed/cluster_affluence.csv")
     print(df_affluence_cluster.head())
+
+    
+
+

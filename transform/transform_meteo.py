@@ -107,8 +107,10 @@ if __name__ == "__main__":
     df_meteo = pd.read_csv("data/donnees-synop-essentielles-omm.csv", sep=';')
     transformer = TransformMeteo(df_meteo)
 
-    df_meteo_cleaned = transformer.process_data()
-    df_meteo_cleaned.to_csv("data/data_transformed/meteo_cleaned.csv", index=False)
+    # df_meteo_cleaned = transformer.process_data()
+    # df_meteo_cleaned.to_csv("data/data_transformed/meteo_cleaned.csv", index=False)
+
+    df_meteo_cleaned = pd.read_csv("data/meteo_cleaned.csv")
 
     df_cluster = pd.read_csv("data/cluster_mapping.csv")
 

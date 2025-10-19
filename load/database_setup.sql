@@ -41,31 +41,30 @@ CREATE TABLE communes (
 )
 
 -- Table tourisme : contient les informations relatives aux points d'intérêt du territoire français
-CREATE TABLE tourisme (
-    id SERIAL PRIMARY KEY
-);
+--CREATE TABLE tourisme (
+   -- id SERIAL PRIMARY KEY
+--);
 
 -- Table affluences : contient les données relatives à l'affluence touristique de chaque zone d'emploi du territoire français
 CREATE TABLE affluences (
-    id SERIAL PRIMARY KEY,
-    zone_emploi INT,
+    code_cluster INT,
     id_activity VARCHAR(10),
     activity_type VARCHAR(100),
     time_period VARCHAR(10),
     capacity_zone FLOAT,
     nb_nights_zone FLOAT
-)
+);
 
 -- Table meteo : contient les données relatives à la météo de chaque zone d'emploi du territoire français
 CREATE TABLE meteo (
     code_cluster INT,
-    Mois INT(2)
-    Pression station FLOAT
-    Température (°C) FLOAT
-    Précipitations dans les 24 dernières heures FLOAT
-    Rafales sur une période FLOAT
-    PRIMARY KEY (code_cluster, mois)
-)
+    Mois INT(2),
+    Pression station FLOAT,
+    Température (°C) FLOAT,
+    Précipitations dans les 24 dernières heures FLOAT,
+    Rafales sur une période FLOAT,
+    PRIMARY KEY (code_cluster, mois),
+);
 
 
 
