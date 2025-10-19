@@ -205,19 +205,22 @@ class AttendanceTransformer() :
 
         df_affluences_cluster = pd.DataFrame()
 
-        df_affluences['code_insee_centre_zone_emploi'] = None
+        df_affluences['zone_emploi'] = None
 
-        for i in range (len(df_affluences_cluster)) :
+        for i in range (len(df_affluences)) :
 
             insee_code = df_affluences.loc[i, 'insee_code']
 
-            zone_emploi = df_communes.loc[df_communes['code_insee'] == insee_code, 'code_insee_centre_zone_emploi'].iloc[0]
-
-            df_affluences.loc[i, 'code_insee_centre_zone_emploi'] = zone_emploi
-
+            zone_emploi_arr = df_communes.loc[df_communes['code_insee'] == insee_code, 'code_insee_centre_zone_emploi'].values
+            zone_emploi = zone_emploi_arr[0] if len(zone_emploi_arr) else None   # <- SCALAIRE
+            df_affluences.loc[i, 'zone_emploi'] = zone_emploi
+            df_affluences.loc[i, 'code_cluster'] = df_communes.loc[df_communes['code_insee'] == insee_code, 'code_cluster'].values[0] if len(zone_emploi_arr) else None
+            
+        print(df_affluences.head())
+        
         
         df_affluences_cluster = (df_affluences.groupby(
-                            ['zone_emploi', 'id_activity', 'activity_type', 'time_period'], as_index=False)
+                            ['zone_emploi', 'id_activity', 'activity_type', 'time_period', 'code_cluster'], as_index=False)
                             .agg({
                                 'capacity_city': 'sum',
                                 'nb_nights_city': 'sum'
@@ -229,6 +232,8 @@ class AttendanceTransformer() :
                         'capacity_city': 'capacity_zone',
                         'nb_nights_city': 'nb_nights_zone'
                     }, inplace=True)
+
+        print(df_affluences_cluster.head())
         
 
         return df_affluences_cluster
@@ -257,7 +262,7 @@ if __name__ == "__main__" :
     print(df_affluences.head())
 
     # A compléter avec la partie d'Antonin
-    df_communes = pd.read_csv("data/cluster_mapping.csv")
+    df_communes = pd.read_csv("data/communes_france_cleaned.csv")
 
     df_affluence_cluster = Transformer.affluences_cluster(df_affluences, df_communes)
 
