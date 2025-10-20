@@ -248,54 +248,36 @@ class AttendanceTransformer() :
             df_communes (pd.DataFrame): Données des communes avec leur code_cluster.
 
         Returns:
-            pd.DataFrame: Données agrégées par cluster et type d'activité.
+            df_affluences_cluster (pd.DataFrame) : Dataframe final de la partie affluences
         """
 
-        # Vérifications de base
-        required_cols_aff = {
-            'insee_code', 'dept_code', 'id_activity', 'activity_type',
-            'capacity_city', 'capacity_dept', 'time_period',
-            'nb_nights_city', 'nb_nights_dept'
-        }
-        required_cols_com = {'code_insee', 'code_insee_centre_zone_emploi', 'code_cluster'}
+        df_affluences_cluster = pd.DataFrame()
 
-        missing_aff = required_cols_aff - set(df_affluences.columns)
-        missing_com = required_cols_com - set(df_communes.columns)
+        df_affluences['zone_emploi'] = None
 
-        if missing_aff:
-            raise KeyError(f"Colonnes manquantes dans df_affluences: {missing_aff}")
-        if missing_com:
-            raise KeyError(f"Colonnes manquantes dans df_communes: {missing_com}")
+        cols = ["code_insee", "code_insee_centre_zone_emploi", "code_cluster"]
+        df_communes_unique = df_communes[cols].drop_duplicates(subset="code_insee", keep="first")
 
-        # Harmonisation des types (important pour la jointure)
-        df_affluences['insee_code'] = df_affluences['insee_code'].astype(str)
-        df_communes['code_insee'] = df_communes['code_insee'].astype(str)
-
-        # Jointure pour ajouter code_cluster
-        df_merged = df_affluences.merge(
-            df_communes[['code_insee', 'code_insee_centre_zone_emploi', 'code_cluster']],
-            how='left',
-            left_on='insee_code',
-            right_on='code_insee'
-        )
-
-        # Nettoyage
-        df_merged.drop(columns=['code_insee'], inplace=True)
-        df_merged.rename(columns={'code_insee_centre_zone_emploi': 'zone_emploi'}, inplace=True)
-
-        # Agrégation par cluster
+        # Jointure gauche sur le code INSEE
         df_affluences_cluster = (
-            df_merged.groupby(
-                ['code_cluster', 'id_activity', 'activity_type', 'time_period'],
-                as_index=False
-            )
-            .agg({
-                'capacity_city': 'sum',
-                'nb_nights_city': 'sum'
-            })
+            df_affluences
+            .merge(df_communes_unique, how="left", left_on="insee_code", right_on="code_insee")
+            .rename(columns={"code_insee_centre_zone_emploi": "zone_emploi"})
+            .drop(columns=["code_insee"])  # on n’a plus besoin de la clé à droite
         )
 
-        # ✍️ Renommage final
+        print(df_affluences_cluster.head())
+        
+        
+        df_affluences_cluster = (df_affluences_cluster.groupby(
+                            ['zone_emploi', 'id_activity', 'activity_type', 'time_period', 'code_cluster'], as_index=False)
+                            .agg({
+                                'capacity_city': 'sum',
+                                'nb_nights_city': 'sum'
+                            })
+                            )
+        
+
         df_affluences_cluster.rename(columns={
             'capacity_city': 'capacity_zone',
             'nb_nights_city': 'nb_nights_zone'
