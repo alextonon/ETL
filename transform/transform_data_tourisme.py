@@ -34,7 +34,7 @@ class DataTourismTransformer():
 
 
         ### On supprime les données qui sont inutiles pour notre algorithme de décision et dont les champs sont principalement vide. ###
-        df.drop(['Periodes_regroupees', 'Covid19_mesures_specifiques', 'Contacts_du_POI', 'Classements_du_POI', 'SIT_diffuseur'], axis=1)
+        df = df.drop(['Periodes_regroupees', 'Covid19_mesures_specifiques', 'Contacts_du_POI', 'Classements_du_POI', 'SIT_diffuseur'], axis=1)
 
 
         ### On récupère uniquement les catégorie de POI (orignialement noyyer dans une url) ###
@@ -120,11 +120,6 @@ class DataTourismTransformer():
         df = df.dropna(subset=["ID"])
 
 
-        ### On réindexe en fonction du département ###
-
-        df = df.sort_values(by=['Département'], ascending=[True]).reset_index(drop=True)
-
-
         ### On convertis les code postaux en floatant ###
         
         df['Code_postale'] = df['Code_postale'].astype(float)
@@ -133,6 +128,7 @@ class DataTourismTransformer():
         ### On récupère les cluster id depuis la table des cluster en fonction des codes postaux ###
 
         df_cluster = self.df_cluster.rename(columns={'code_postal': 'Code_postale'})
+        df_cluster = df_cluster.drop_duplicates(subset="Code_postale", keep="first")
 
         # On fusionne sur les codes postaux
         df_merged = df.merge(
@@ -145,6 +141,9 @@ class DataTourismTransformer():
         df = df_merged.rename(columns={'code_cluster': 'Cluster_id'})
 
         df = df.dropna(subset=["Cluster_id"])
+
+        ### On réindexe en fonction du département ###
+        df = df.sort_values(by=['Département'], ascending=[True]).reset_index(drop=True)
 
         print(f'Il reste {len(df)} data après nettoyage.') 
 
