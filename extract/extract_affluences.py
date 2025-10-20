@@ -101,6 +101,7 @@ class AttendanceExtractor() :
                                 "70", "71", "72", "73", "74", "75", "76", "77", "78", "79",
                                 "80", "81", "82", "83", "84", "85", "86", "87", "88", "89",
                                 "90", "91", "92", "93", "94", "95"]
+        
 
         liste_api_url_capacite_departement = []
 
@@ -151,7 +152,10 @@ class AttendanceExtractor() :
 
 if __name__ == '__main__' :
 
-    Extractor = AttendanceExtractor()
+    Attendance_Extractor = AttendanceExtractor()
 
-    df_nuitees = Extractor.extract_data_nb_nuitees()
-    print(len(df_nuitees))
+    df_capacite = Attendance_Extractor.extract_data_capacite()
+    df_nb_nuitees = Attendance_Extractor.extract_data_nb_nuitees()
+
+    df_capacite.to_csv("data/data_extracted/df_capacite.csv", index=False)
+    df_nb_nuitees.to_csv("data/data_extracted/df_nb_nuitees.csv", index=False)

@@ -1,12 +1,13 @@
 import pandas as pd
 import requests
+import os
 
 class DataTourismExtractor():
     def __init__(self, list_chemin) -> None:
         self.list_chemin = list_chemin
 
     def extract_csv(self):
-        """Fonction d'appel à l'API du site du gouvernement afin de telecharger les fichier CSV de DataTourisme sur chaque région 
+        """Fonction d'appel à l'API du site du gouvernement afin de telecharger les fichiers CSV de DataTourisme sur chaque région 
         et de les stocker"""
 
         api_url = "https://www.data.gouv.fr/api/2/datasets/5b598be088ee387c0c353714/resources/?page=1&page_size=50"
@@ -43,11 +44,11 @@ class DataTourismExtractor():
                         if requests_csv.status_code == 200:
                             
                             # On telecharge sous format CSV le fichier
-                            with open("data/"+ title, "wb") as f:
+                            with open("../data/DataTourism/"+ title, "wb") as f:
                                 f.write(requests_csv.content)
 
 
-            print(f"Tout les CSV sont créer")
+            print(f"Tous les CSV sont créés")
         
         except requests.exceptions.RequestException as e:
             print(f"❌ Network error fetching data: {e}")
@@ -58,7 +59,7 @@ class DataTourismExtractor():
     
 
     def extract_data(self):
-        """Fonctionqui récupère chaque dataframe de chaque région et les concatène dans un seul dataframe"""
+        """Fonction qui récupère chaque dataframe de chaque région et les concatène dans un seul dataframe"""
 
         
         try:
@@ -67,9 +68,9 @@ class DataTourismExtractor():
 
             # Concaténation des dataframe
             for chemin in self.list_chemin:
-                df = pd.concat([df, pd.read_csv("../data/"+ chemin)], ignore_index=True)
+                df = pd.concat([df, pd.read_csv(os.path.join("data", "DataTourism", chemin))], ignore_index=True)
 
-            print('Dataframe créer')
+            print('Dataframe créé')
             return df
             
         except Exception as e:
@@ -77,17 +78,29 @@ class DataTourismExtractor():
             return pd.DataFrame()
         
 
+if __name__ == '__main__' :
 
-if __name__ == "__main__":
-    list_df = ["datatourisme-reg-ara.csv", "datatourisme-reg-bfc.csv", "datatourisme-reg-bre.csv",
-        "datatourisme-reg-cor.csv", "datatourisme-reg-cvl.csv", "datatourisme-reg-gde.csv",
-        "datatourisme-reg-hdf.csv", "datatourisme-reg-naq.csv", "datatourisme-reg-nor.csv",
-        "datatourisme-reg-idf.csv",  "datatourisme-reg-occ.csv", "datatourisme-reg-pac.csv",
-        "datatourisme-reg-pdl.csv"]
-    
-    extractor = DataTourismExtractor(list_df)
-    
-    # extractor.extract_csv()
-    df = extractor.extract_data()
 
-    print(df)
+    ### %%%%% A REVOIR CAR NE FONCTIONNE PAS 
+    
+    # Liste test de csv à télécharger
+    liste_csv = ["datatourisme-reg-ara.csv", "datatourisme-reg-bfc.csv", "datatourisme-reg-bre.csv"]
+
+    #Créer l'instance
+    Extractor = DataTourismExtractor(liste_csv)
+
+    #Télécharger les fichiers
+    Extractor.extract_csv()
+
+    #Lire et concaténer les CSV
+    df_datatourism = Extractor.extract_data()
+
+    #Vérifier
+    print(df_datatourism.head())
+    print(len(df_datatourism))
+
+    # Exporter si besoin
+    #df_datatourism.to_csv("../data/DataTourism/all_regions.csv", index=False)
+
+
+    

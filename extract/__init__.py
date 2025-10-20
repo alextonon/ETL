@@ -1,0 +1,1 @@
+from extract.extract_affluences import AttendanceExtractor

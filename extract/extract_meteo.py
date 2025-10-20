@@ -30,40 +30,15 @@ class MeteoExtractor:
 
         self.df = pd.read_csv(data_source, sep=';')
 
-
-    def process_data(self):
-        # Logic to process the extracted data
-        self.df = pd.read_csv("donnees-synop-essentielles-omm.csv", sep=';')
-        
-        self.df.drop(columns=["Rafale sur les 10 dernières minutes","Précipitations dans les 3 dernières heures"], inplace=True)
-
-        self.df.dropna(inplace=True)
-
-        self.df['Date'] = pd.to_datetime(self.df['Date'], format="ISO8601", utc=True)
-        self.df['Mois'] = self.df['Date'].dt.month
-        
-        # On construit un gros tcd, avec une méthode adaptée pour la pluie
-        self.df_mensuel = (
-        self.df.groupby([
-            "Latitude", "Longitude",
-            "department (name)", "department (code)",
-            "communes (code)", "Nom", "Mois"
-        ], as_index=False)
-        .agg({
-            "Pression station": "mean",
-            "Température (°C)": "mean",
-            "Précipitations dans les 24 dernières heures": "sum",
-            "Rafales sur une période": "mean"
-        })
-        )
         
 
-        
+if __name__ == '__main__' :
 
-if __name__ == "__main__":
-    extractor = MeteoExtractor()
-    
-    extractor.process_data()
-    df = extractor.df_mensuel
+    Extractor = MeteoExtractor()
 
-    print(df)
+    df_meteo = Extractor.get_brute_dataset()
+
+    #%%%% trop long ?
+    df_meteo.to_csv("data/data_extracted/df_meteo_brut.csv")
+
+    print(df_meteo.head())
