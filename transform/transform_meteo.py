@@ -32,7 +32,7 @@ class TransformMeteo:
                 "Pression station": "mean",
                 "Température (°C)": "mean",
                 "Précipitations dans les 24 dernières heures": "sum",
-                "Rafales sur une période": "mean"
+                "Rafale sur les 10 dernières minutes": "mean"
             })
         )
 

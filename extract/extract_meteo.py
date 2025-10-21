@@ -7,7 +7,7 @@ class MeteoExtractor:
     def __init__(self):
         pass
 
-    def get_brute_dataset(self, local=True):
+    def extract_data(self, local=False):
         # Logic to return the raw dataset
 
         # On utilise la fonction export, en ajoutant une selection sur les variables qui nous interessent  
@@ -39,7 +39,7 @@ class MeteoExtractor:
                 print(f"--- Erreur HTTP : statut {response.status_code}")
                 return None
 
-            print(f"---  Data successfully loaded. Shape: {self.df.shape}")
+            print(f"--- Data successfully loaded. Shape: {self.df.shape}")
             return self.df
 
         return self.df

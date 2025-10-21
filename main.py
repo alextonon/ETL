@@ -34,7 +34,7 @@ def pipeline_meteo(df_cluster, bypass_extracts):
 
     if not bypass_extracts:
         meteo_extractor = MeteoExtractor()
-        df_meteo = meteo_extractor.extract_data(local=True)
+        df_meteo = meteo_extractor.extract_data()
 
         df_meteo.to_csv("data/data_extracted/df_meteo_brut.csv")
 
@@ -141,6 +141,7 @@ def pipeline_datatourisme(df_town, bypass_extracts):
     return df_datatourisme_cleaned
 
 if __name__ == "__main__":
+    # Time taken for ETL Pipeline: 371.25 seconds
     BYPASS_EXTRACTS = False  # Set to True to skip extraction and use local files
 
     df_town, df_cluster = pipeline_town(BYPASS_EXTRACTS)

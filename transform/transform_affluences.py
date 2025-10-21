@@ -240,9 +240,6 @@ class AttendanceTransformer() :
         if n_missing > 0:
             print(f"Attention : {n_missing} communes sans code_cluster dans df_affluences_cluster.")
 
-
-
-
         return df_affluences_cluster
 
 if __name__ == "__main__" :
