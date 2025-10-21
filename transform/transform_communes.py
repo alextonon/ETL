@@ -19,11 +19,10 @@ class TownTransformer() :
             """
 
             if self.df_town.empty:
-                print("⚠️  Pas de données à nettoyer")
+                print("--- ⚠️  Pas de données à nettoyer")
                 return self.df_town
             
-            print(f"🧹 Nettoyage des données...")
-            print(f"On commence avec {len(self.df_town)} ")
+            print("--- Cleaning communes dataset.")
 
             #On ne garde que le 'nom_standard' dans pour la dénomination des communes
             self.df_town.drop(['nom_sans_pronom', 'nom_a', 'nom_de', 'nom_sans_accent','nom_standard_majuscule'], axis=1, inplace=True)
@@ -50,11 +49,11 @@ class TownTransformer() :
         """
         Fonction permettant de créer un mapping entre les codes des clusters et les zones d'emplois associées.
         Returns:
-            cluster_mapping (dict): Dictionnaire de mapping entre les codes des clusters et les zones d'emplois.
+            cluster_mapping (df): Dictionnaire de mapping entre les codes des clusters et les zones d'emplois.
         """
         if self.df_town.empty:
-            print("⚠️  Pas de données pour créer le mapping")
-            return {}
+            print("---⚠️  Pas de données pour créer le mapping")
+            return pd.DataFrame(columns=["code_cluster", "code_insee_centre_zone_emploi", "latitude_centre", "longitude_centre"])
         
 
         self.cluster_mapping = (
@@ -81,7 +80,7 @@ class TownTransformer() :
             biggest_town (pd.Series): Série contenant les informations de la plus grande commune du cluster.
         """
         if self.df_town.empty:
-            print("⚠️  Pas de données pour récupérer la plus grande commune")
+            print("--- ⚠️  Pas de données pour récupérer la plus grande commune")
             return None
 
         cluster_towns = self.df_town[self.df_town['code_cluster'] == cluster_code]

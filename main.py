@@ -46,7 +46,61 @@ def pipeline_meteo(df_cluster):
     df_cluster_meteo = transformer.link_clusters_with_meteo(df_cluster, df_mensuel) 
     df_cluster_meteo.to_csv("data/data_transformed/cluster_meteo.csv", index=False) # Stockage table finale
 
+    print("✅ Meteo ETL Pipeline completed.")
+
     return df_cluster_meteo
+
+def pipeline_town():
+    """Run the Town ETL pipeline"""
+    print("--- Starting TOWN ETL Pipeline...")
+    print("=" * 50)
+
+    #### -- TOWN Extract
+
+    town_extractor = TownExtractor()
+    df_town = town_extractor.extract_data(["communes-france-2025.csv"])
+
+    #### -- Town Transform
+    Town_Transformer = TownTransformer(df_town)
+    df_towncleaned = Town_Transformer.clean_data()
+    df_towncleaned.to_csv("data/data_transformed/communes_france_cleaned.csv", index=False) # Stockage intermédiaire
+
+    cluster_mapping = Town_Transformer.create_cluster_mapping() 
+    cluster_mapping.to_csv("data/data_transformed/cluster_mapping.csv") # Stockage table finale
+
+    print("✅ Town ETL Pipeline completed.")
+    return df_towncleaned, cluster_mapping
+
+def pipeline_affluences(df_towncleaned):
+    """Run the Affluences ETL pipeline"""
+    print("--- Starting AFFLUENCE ETL Pipeline...")
+    print("=" * 50)
+    
+    #### -- Attendance Extract 
+    Attendance_Extractor = AttendanceExtractor()
+
+    df_capacite = Attendance_Extractor.extract_data_capacite()
+    df_nb_nuitees = Attendance_Extractor.extract_data_nb_nuitees()
+
+    df_capacite.to_csv("data/data_extracted/df_capacite.csv", index=False)
+    df_nb_nuitees.to_csv("data/data_extracted/df_nb_nuitees.csv", index=False)
+
+    #### -- Affluence Transform
+    Attendance_Transformer = AttendanceTransformer()
+
+    df_capacite = Attendance_Transformer.transform_data_capacite(df_capacite)
+    df_nb_nuitees = Attendance_Transformer.transform_data_nb_nuitees(df_nb_nuitees)
+
+    df_affluences = Attendance_Transformer.creation_dataframe_affluences(df_capacite, df_nb_nuitees)
+
+
+    df_affluence_cluster = AttendanceTransformer.affluences_cluster(df_affluences, df_towncleaned)
+
+    df_affluence_cluster.to_csv("data/data_transformed/cluster_affluence.csv", index = False) 
+    print("✅ Affluence ETL Pipeline completed.")
+    return df_affluence_cluster
+
+
     
 
 
@@ -237,5 +291,12 @@ def main():
     print("=" * 50)
 
 if __name__ == "__main__":
-    df_cluster = pd.read_csv("data/cluster_mapping.csv")
-    pipeline_meteo(df_cluster)
+    df_town, df_cluster = pipeline_town()
+
+    print("=" * 50)
+
+    # df_meteo = pipeline_meteo(df_cluster)
+
+    print("=" * 50)
+    
+    df_affluence = pipeline_affluences(df_town)
