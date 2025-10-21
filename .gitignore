@@ -1,6 +1,11 @@
 data/donnees-synop-essentielles-omm.csv
-*.pyc
+
+# Python temp files
 __pycache__/
+*.py[cod]
+*$py.class
+...
+
 .vscode/
 
 data/data_extracted/df_meteo_brut.csv
