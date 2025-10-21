@@ -89,8 +89,7 @@ class TownTransformer() :
         return biggest_town
 
 if __name__ == "__main__":
-
-    df_town = pd.read_csv("data/communes-france-2025.csv", sep=",")
+    df_town = pd.read_csv("data/data_extracted/df_town.csv", sep=",")
     transformer = TownTransformer(df_town)
 
     df_cleaned = transformer.clean_data()
@@ -98,7 +97,5 @@ if __name__ == "__main__":
 
     cluster_mapping = transformer.create_cluster_mapping()
     cluster_mapping.to_csv("data/data_transformed/cluster_mapping.csv")
-
-    print("Données nettoyées et sauvegardées dans 'data/data_transformed/")
 
     print(cluster_mapping.head())

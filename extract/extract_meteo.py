@@ -6,7 +6,7 @@ class MeteoExtractor:
     def __init__(self):
         pass
 
-    def get_brute_dataset(self, local=True):
+    def extract_data(self, local=True):
         # Logic to return the raw dataset
 
         # On utilise la fonction export, en ajoutant une selection sur les variables qui nous interessent  
@@ -19,7 +19,7 @@ class MeteoExtractor:
             data_source = (
                 "https://public.opendatasoft.com/api/explore/v2.1/catalog/datasets/"
                 "donnees-synop-essentielles-omm/exports/csv?"
-                "select=date,latitude,longitude,nom_dept,code_dep,codegeo,pres,nom,tc,rr3,rr24,raf10"
+                "select=date,latitude,longitude,nom_dept,code_dep,codegeo,pres,nom,tc,rr24"
                 "&lang=fr"
                 "&timezone=Europe%2FParis"
                 "&use_labels=true"

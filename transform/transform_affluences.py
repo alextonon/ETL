@@ -186,55 +186,7 @@ class AttendanceTransformer() :
         df_affluences['nb_nights_city'] = df_affluences['nb_nights_dept'] * 1000 * df_affluences['capacity_city'] / df_affluences['capacity_dept']
 
         return df_affluences
-    
 
-    # def affluences_cluster(self, df_affluences, df_communes) :
-    #     """
-    #     Aggrège les données du dataframe d'affluences par bassin d'emploi (i.e. cluster), en sommant
-    #     les valeurs des lignes correspondant à des communes appartenant au bassin concerné.
-    #     Args:
-    #         df_affluences (pd.DataFrame): DataFrame des affluences par mois et par commune, obtenu
-    #         en sortie de la fonction creation_dataframe_affluences
-    #         df_communes (pd.DataFrame): DataFrame contenant les informations relatives à chaque commune,
-    #         dont le bassin d'emploi en particulier.
-    #     Returns:
-    #         df_affluences_cluster (pd.DataFrame) : Dataframe final de la partie affluences
-    #     """
-
-    #     df_affluences_cluster = pd.DataFrame()
-
-    #     df_affluences['zone_emploi'] = None
-
-    #     for i in range (len(df_affluences)) :
-
-    #         insee_code = df_affluences.loc[i, 'insee_code']
-
-    #         zone_emploi_arr = df_communes.loc[df_communes['code_insee'] == insee_code, 'code_insee_centre_zone_emploi'].values
-    #         zone_emploi = zone_emploi_arr[0] if len(zone_emploi_arr) else None   # <- SCALAIRE
-    #         df_affluences.loc[i, 'zone_emploi'] = zone_emploi
-    #         df_affluences.loc[i, 'code_cluster'] = df_communes.loc[df_communes['code_insee'] == insee_code, 'code_cluster'].values[0] if len(zone_emploi_arr) else None
-            
-    #     print(df_affluences.head())
-        
-        
-    #     df_affluences_cluster = (df_affluences.groupby(
-    #                         ['zone_emploi', 'id_activity', 'activity_type', 'time_period', 'code_cluster'], as_index=False)
-    #                         .agg({
-    #                             'capacity_city': 'sum',
-    #                             'nb_nights_city': 'sum'
-    #                         })
-    #                         )
-        
-
-    #     df_affluences_cluster.rename(columns={
-    #                     'capacity_city': 'capacity_zone',
-    #                     'nb_nights_city': 'nb_nights_zone'
-    #                 }, inplace=True)
-
-    #     print(df_affluences_cluster.head())
-        
-
-    #     return df_affluences_cluster
     
     def affluences_cluster(self, df_affluences, df_communes):
         """
@@ -291,19 +243,8 @@ class AttendanceTransformer() :
 
         return df_affluences_cluster
 
-
-
-
-
-
 if __name__ == "__main__" :
-
-    Extractor = AttendanceExtractor()
-
     Transformer = AttendanceTransformer()
-
-    #df_capacite = Extractor.extract_data_capacite()
-    #df_nb_nuitees = Extractor.extract_data_nb_nuitees()
 
     df_capacite = pd.read_csv("data/data_extracted/df_capacite.csv")
     df_nb_nuitees = pd.read_csv("data/data_extracted/df_nb_nuitees.csv")
@@ -325,12 +266,8 @@ if __name__ == "__main__" :
     print(df_affluences.head())
 
 
-    print("### --- df_affluence_cluster --- ###")    
-    df_communes = pd.read_csv("data/communes_france_cleaned.csv", low_memory = False)
+    print("### --- df_affluence_cluster --- ###")
+    df_communes = pd.read_csv("data/data_transformed/communes_france_cleaned.csv", low_memory=False)
     df_affluence_cluster = Transformer.affluences_cluster(df_affluences, df_communes)
     df_affluence_cluster.to_csv("data/data_transformed/cluster_affluence.csv", index=False)
     print(df_affluence_cluster.head())
-
-    
-
-

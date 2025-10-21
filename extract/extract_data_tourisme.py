@@ -1,12 +1,18 @@
+import io
 import pandas as pd
 import requests
 import os
 
 class DataTourismExtractor():
     def __init__(self) -> None:
-        self.list_chemin = ["datatourisme-reg-ara.csv", "datatourisme-reg-bfc.csv", "datatourisme-reg-bre.csv"]
+        self.list_chemin = ["datatourisme-reg-ara.csv", "datatourisme-reg-bfc.csv", "datatourisme-reg-bre.csv",
+        "datatourisme-reg-cor.csv", "datatourisme-reg-cvl.csv", "datatourisme-reg-gde.csv",
+        "datatourisme-reg-hdf.csv", "datatourisme-reg-naq.csv", "datatourisme-reg-nor.csv",
+        "datatourisme-reg-idf.csv",  "datatourisme-reg-occ.csv", "datatourisme-reg-pac.csv",
+        "datatourisme-reg-pdl.csv"]
 
-    def extract_csv(self):
+
+    def extract_data(self):
         """Fonction d'appel à l'API du site du gouvernement afin de telecharger les fichiers CSV de DataTourisme sur chaque région 
         et de les stocker"""
 
@@ -25,11 +31,12 @@ class DataTourismExtractor():
             if response.status_code == 200: 
                 print("Cela fonctionne")
 
-
-
                 data = response.json() 
+
+                df = pd.DataFrame()
             
                 for part in data.get('data', []):
+
                     # On récupère les titres des fichier 
                     title = part.get('title')
                     
@@ -42,13 +49,13 @@ class DataTourismExtractor():
                         requests_csv = requests.get(url_csv)
 
                         if requests_csv.status_code == 200:
-                            
-                            # On telecharge sous format CSV le fichier
-                            with open("../data/DataTourism/"+ title, "wb") as f:
-                                f.write(requests_csv.content)
+                            csv_text = requests_csv.content.decode('utf-8')
+                            df_csv = pd.read_csv(io.StringIO(csv_text))
 
+                            df = pd.concat([df, df_csv], ignore_index=True)
 
             print(f"Tous les CSV sont créés")
+            return df
         
         except requests.exceptions.RequestException as e:
             print(f"❌ Network error fetching data: {e}")
@@ -58,49 +65,12 @@ class DataTourismExtractor():
             return pd.DataFrame()
     
 
-    def extract_data(self):
-        """Fonction qui récupère chaque dataframe de chaque région et les concatène dans un seul dataframe"""
-
-        
-        try:
-
-            df = pd.DataFrame()
-
-            # Concaténation des dataframe
-            for chemin in self.list_chemin:
-                df = pd.concat([df, pd.read_csv(os.path.join("data", "DataTourism", chemin))], ignore_index=True)
-
-            print('Dataframe créé')
-            return df
-            
-        except Exception as e:
-            print(f"❌ Error reading data: {e}")
-            return pd.DataFrame()
-        
-
 if __name__ == '__main__' :
+    DataTourism_Extractor = DataTourismExtractor()
+    df_tourism = DataTourism_Extractor.extract_data()
 
+    print(df_tourism.head())
 
-    ### %%%%% A REVOIR CAR NE FONCTIONNE PAS 
-    
-    # Liste test de csv à télécharger
-    liste_csv = ["datatourisme-reg-ara.csv", "datatourisme-reg-bfc.csv", "datatourisme-reg-bre.csv"]
-
-    #Créer l'instance
-    Extractor = DataTourismExtractor(liste_csv)
-
-    #Télécharger les fichiers
-    Extractor.extract_csv()
-
-    #Lire et concaténer les CSV
-    df_datatourism = Extractor.extract_data()
-
-    #Vérifier
-    print(df_datatourism.head())
-    print(len(df_datatourism))
-
-    # Exporter si besoin
-    #df_datatourism.to_csv("../data/DataTourism/all_regions.csv", index=False)
-
+    df_tourism.to_csv("data/data_extracted/df_datatourisme.csv", index=False)
 
     

@@ -146,12 +146,7 @@ class AttendanceExtractor() :
 
         return df_nb_nuitees
 
-
-
-
-
 if __name__ == '__main__' :
-
     Attendance_Extractor = AttendanceExtractor()
 
     df_capacite = Attendance_Extractor.extract_data_capacite()

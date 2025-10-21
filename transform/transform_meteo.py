@@ -14,10 +14,6 @@ class TransformMeteo:
         # Logic to process the extracted data
         self.df = df_meteo_brut.copy()
 
-        # On tolère l'absence de colonnes (pas d'erreur si manquantes)
-        cols_to_drop = ["Rafale sur les 10 dernières minutes","Précipitations dans les 3 dernières heures"]
-        self.df.drop(columns=[c for c in cols_to_drop if c in self.df.columns], inplace=True, errors="ignore")
-
         self.df.dropna(inplace=True)
 
         # Parsing ISO tolérant
@@ -117,6 +113,8 @@ class TransformMeteo:
 
         self.df_cluster_meteo.sort_values(by=[c for c in ['code_cluster','mois'] if c in self.df_cluster_meteo.columns], inplace=True)
 
+        self.df_cluster_meteo.reset_index(drop=True, inplace=True)
+
         return self.df_cluster_meteo
 
 
@@ -128,10 +126,8 @@ if __name__ == "__main__":
 
     df_mensuel = transformer.process_data(df_meteo_brut)
 
-    df_mensuel.to_csv("data/data_transformed/meteo_mensuel.csv", index=False)
-
-    df_cluster = pd.read_csv("data/cluster_mapping.csv")
+    df_cluster = pd.read_csv("data/data_transformed/cluster_mapping.csv")
     df_cluster_meteo = transformer.link_clusters_with_meteo(df_cluster) 
     df_cluster_meteo.to_csv("data/data_transformed/cluster_meteo.csv", index=False)
 
-    print(df_mensuel.head())
+    print(df_cluster_meteo.head())

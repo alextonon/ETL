@@ -10,13 +10,6 @@ class DataTourismTransformer():
 
         self.df_DataTourisme = pd.DataFrame()
 
-        list_df = ["datatourisme-reg-ara.csv", "datatourisme-reg-bfc.csv", "datatourisme-reg-bre.csv",
-        "datatourisme-reg-cor.csv", "datatourisme-reg-cvl.csv", "datatourisme-reg-gde.csv",
-        "datatourisme-reg-hdf.csv", "datatourisme-reg-naq.csv", "datatourisme-reg-nor.csv",
-        "datatourisme-reg-idf.csv",  "datatourisme-reg-occ.csv", "datatourisme-reg-pac.csv",
-        "datatourisme-reg-pdl.csv"]
-
-
         # A garder score cacher qui compte sans un poids du client
         Logement = ['Hotel', 'BedAndBreakfast', 'HotelRestaurant', 'Hostel', 'CampingAndCaravanning',
                     'Accommodation', 'HotelTrade', 'RentalAccommodation', 'CollectiveAccommodation', 'TableHoteGuesthouse',
@@ -247,29 +240,17 @@ class DataTourismTransformer():
 
 
 
-
-
-
-### Cluster ###
-
 if __name__ == "__main__":
-
-    
-
-    ### Cluster ###
-
-
-    
-
     df_cluster = pd.read_csv('data/data_transformed/communes_france_cleaned.csv', low_memory=False)
-   
+    df_tourism = pd.read_csv("data/data_extracted/df_datatourisme.csv")
 
-
-    tourism_transformer = DataTourismTransformer(df_tourism, Liste_to_keep, categorie_dict, df_cluster)
+    tourism_transformer = DataTourismTransformer(df_tourism, df_cluster)
 
     df_dataTourisme = tourism_transformer.clean_data()
 
     df_dataTourisme.to_csv('data/data_transformed/datatourism_cleaned.csv', index=False)
     print("Data enregistrée avec succès")
+
+    print(df_dataTourisme.head())
 
 

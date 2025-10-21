@@ -33,7 +33,7 @@ def pipeline_meteo(df_cluster):
     #### -- Meteo Extract 
 
     meteo_extractor = MeteoExtractor()
-    df_meteo = meteo_extractor.get_brute_dataset(local=True)
+    df_meteo = meteo_extractor.extract_data(local=False)
 
     df_meteo.to_csv("data/data_extracted/df_meteo_brut.csv")
 
@@ -127,11 +127,11 @@ if __name__ == "__main__":
 
     print("=" * 50)
 
-    # df_meteo = pipeline_meteo(df_cluster)
+    df_meteo = pipeline_meteo(df_cluster)
 
     print("=" * 50)
     
-    # df_affluence = pipeline_affluences(df_town)
+    df_affluence = pipeline_affluences(df_town)
 
     print("=" * 50)
 
