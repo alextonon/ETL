@@ -26,10 +26,10 @@ CREATE TABLE affluence (
     code_cluster INT,
     id_activity VARCHAR(10),
     activity_type VARCHAR(100),
-    time_period VARCHAR(10),
+    mois INT,
     capacity_zone FLOAT,
     nb_nights_zone FLOAT,
-    PRIMARY KEY (code_cluster, id_activity)
+    PRIMARY KEY (code_cluster, id_activity, mois)
 );
 
 -- Table meteo : contient les données relatives à la météo de chaque zone d'emploi du territoire français
@@ -50,11 +50,12 @@ CREATE TABLE tourisme (
    code_cluster INT,
    Nom_du_POI TEXT,
    Categories_de_POI TEXT,
-   Latitude FLOAT,
    Categorie_simplifiee TEXT,
+   Latitude FLOAT,
    Longitude FLOAT,
    Date_de_mise_a_jour DATE,
    Description TEXT,
+   URL_du_POI TEXT,
    PRIMARY KEY (ID)
 );
 

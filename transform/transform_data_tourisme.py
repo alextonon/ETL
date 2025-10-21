@@ -136,18 +136,6 @@ class DataTourismTransformer():
 
         # On récupère dans un dataframe temporaire les données importante
         df_temp = df["Code_postal_et_commune"].str.replace('#', ' ', regex=False).str.replace('+', '', regex=False).str.split(n=1, expand=True)
-        # df_temp = df["Code_postal_et_commune"]
-
-        df_temp.columns = ["Code_postale", "Commune"]
-        # df['Code_postale'] = df['Code_postale'].astype(str).str.extract('(\d+)')[0].astype(int)
-        df_temp["Département"] = df_temp["Code_postale"].str[0:2].astype(int)
-
-        df.drop(columns=["Code_postal_et_commune"], inplace=True)
-
-        # On inserre les colonne créer
-        df.insert(col_index, "Département", df_temp["Département"])
-        df.insert(col_index + 1, "Code_postale", df_temp["Code_postale"])
-        df.insert(col_index + 2, "Commune", df_temp["Commune"])
 
         ### Passage des dates en format datetime ###
         df["Date_de_mise_a_jour"] = pd.to_datetime(df["Date_de_mise_a_jour"])
@@ -183,74 +171,46 @@ class DataTourismTransformer():
         df.insert(0, 'ID', df["URI_ID_du_POI"].str.split('/').str[-1])
         df = df.dropna(subset=["ID"])
 
-        ### On convertis les code postaux en floatant ###
-        df['Code_postale'] = df['Code_postale'].astype(float)
 
-        ### On récupère les cluster id depuis la table des cluster en fonction des codes postaux ###
-        df_cluster = self.df_cluster.rename(columns={'code_postal': 'Code_postale'})
-        df_cluster = df_cluster.drop_duplicates(subset="Code_postale", keep="first")
+        ### On convertis les code postaux en floatant ###
+        df['code_postal'] = df_temp[0]
+        df['code_postal'] = df['code_postal'].astype(float)
+
+        self.df_cluster = self.df_cluster.drop_duplicates(subset="code_postal", keep="first")
+        
 
         # On fusionne sur les codes postaux  ⬇️ (application directe sur df)
         df = df.merge(
-            df_cluster[['Code_postale', 'code_cluster']], 
-            on='Code_postale', 
+            self.df_cluster[['code_postal', 'code_cluster']], 
+            on='code_postal', 
             how='left' 
         )
 
-        ### On réindexe en fonction du département ###
-        df = df.sort_values(by=['Département'], ascending=[True]).reset_index(drop=True)
 
         print(f'Il reste {len(df)} data après nettoyage.') 
 
         # code_cluster en 2e colonne
-        cols = ['ID', 'code_cluster', 'Nom_du_POI', 'Categories_de_POI', 'Latitude',
-                'Categorie_simplifiee', 'Longitude','Date_de_mise_a_jour', 'Description']
+        cols = ['ID', 'code_cluster', 'Nom_du_POI', 'Categories_de_POI', 'Categorie_simplifiee', 'Latitude', 
+                'Longitude','Date_de_mise_a_jour', 'Description', 'URI_ID_du_POI']
         df = df[cols]
 
         self.df_DataTourisme = df.copy()
 
+        self.df_DataTourisme.reset_index(drop=True, inplace=True)
+
+        self.df_DataTourisme.dropna(subset=["code_cluster"], inplace=True)
+
         return df
-    
-    def to_csv(self):
-        """
-        Fonction pour sauvegarder le dataframe en csv
-        """
-        self.df_DataTourisme.to_csv('DataTourismClean.csv', index=False)
-
-    def compute_score(self, dict_poids, cluster):
-        """Fonction permettant de calculer le score d'un cluster en fonction de la liste des poids sur les catégories 
-        déterminer par les choix de l'utilisateur
-        Args:
-            dict_poids (Dict) : dictionnaire avec le nom de la catégorie et le poid associer
-            cluster (int) : le cluster id à calculer
-            df (Dataframe) : dataframe de DataTourisme nettoyé
-        Return:
-            score (int) : score d'attractivité du cluster"""
-
-        df_count = self.df_tourism[self.df_tourism['Cluster_id'] == cluster].copy()
-
-        score = 0
-
-        for categorie, poid in dict_poids.items():
-            df_subset = df_count[df_count['Categorie_simplifiee'] == categorie]
-            
-            score += poid * df_subset.shape[0]
-
-        return score
-
 
 
 if __name__ == "__main__":
-    df_cluster = pd.read_csv('data/data_transformed/communes_france_cleaned.csv', low_memory=False)
+    df_cluster = pd.read_csv('data/data_transformed/communes_france_cleaned.csv')
     df_tourism = pd.read_csv("data/data_extracted/df_datatourisme.csv")
 
     tourism_transformer = DataTourismTransformer(df_tourism, df_cluster)
 
     df_dataTourisme = tourism_transformer.clean_data()
 
-    df_dataTourisme.to_csv('data/data_transformed/datatourism_cleaned.csv', index=False)
+    df_dataTourisme.to_csv('data/data_transformed/datatourism_cleaned.csv')
     print("Data enregistrée avec succès")
-
-    print(df_dataTourisme.head())
-
 

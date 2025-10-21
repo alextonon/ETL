@@ -1,12 +1,13 @@
 import requests
 import pandas as pd
+from io import StringIO
 
 
 class MeteoExtractor:
     def __init__(self):
         pass
 
-    def extract_data(self, local=True):
+    def get_brute_dataset(self, local=True):
         # Logic to return the raw dataset
 
         # On utilise la fonction export, en ajoutant une selection sur les variables qui nous interessent  
@@ -15,20 +16,31 @@ class MeteoExtractor:
             print("--- Reading meteorological data from local csv...")
             self.df = pd.read_csv("data/donnees-synop-essentielles-omm.csv", sep=';')
 
-        else :
+        else:
+            print("--- Reading meteorological data from remote API...")
             data_source = (
                 "https://public.opendatasoft.com/api/explore/v2.1/catalog/datasets/"
                 "donnees-synop-essentielles-omm/exports/csv?"
-                "select=date,latitude,longitude,nom_dept,code_dep,codegeo,pres,nom,tc,rr24"
+                "select=date,latitude,longitude,nom_dept,code_dep,codegeo,pres,nom,tc,rr3,rr24,raf10"
                 "&lang=fr"
                 "&timezone=Europe%2FParis"
                 "&use_labels=true"
                 "&delimiter=%3B"
             )
 
-            print("--- Reading meteorological data from Meteo France API...")
+            # Étape intermédiaire : requête HTTP pour vérifier le statut
+            response = requests.get(data_source)
 
-            self.df = pd.read_csv(data_source, sep=';')
+            if response.status_code == 200:
+                print("--- ✅ HTTP 200 OK: Data successfully retrieved.")
+                # Lecture du CSV depuis la réponse brute
+                self.df = pd.read_csv(StringIO(response.text), sep=';')
+            else:
+                print(f"--- Erreur HTTP : statut {response.status_code}")
+                return None
+
+            print(f"---  Data successfully loaded. Shape: {self.df.shape}")
+            return self.df
 
         return self.df
 
@@ -38,7 +50,7 @@ if __name__ == '__main__' :
 
     Extractor = MeteoExtractor()
 
-    df_meteo = Extractor.get_brute_dataset()
+    df_meteo = Extractor.extract_data()
 
     df_meteo.to_csv("data/data_extracted/df_meteo_brut.csv")
 

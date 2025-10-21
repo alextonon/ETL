@@ -25,17 +25,21 @@ from transform.transform_data_tourisme import DataTourismTransformer
 from load.load_data import get_connection_string, load_to_database_affluence, load_to_database_clusters, load_to_database_meteo, test_database_connection 
 #from load.load_data import verify_data, run_sample_queries
 
-def pipeline_meteo(df_cluster):
+def pipeline_meteo(df_cluster, bypass_extracts):
     """Run the Meteo ETL pipeline"""
     print("--- Starting METEO ETL Pipeline...")
     print("=" * 50)
 
     #### -- Meteo Extract 
 
-    meteo_extractor = MeteoExtractor()
-    df_meteo = meteo_extractor.extract_data(local=False)
+    if not bypass_extracts:
+        meteo_extractor = MeteoExtractor()
+        df_meteo = meteo_extractor.extract_data(local=True)
 
-    df_meteo.to_csv("data/data_extracted/df_meteo_brut.csv")
+        df_meteo.to_csv("data/data_extracted/df_meteo_brut.csv")
+
+    else:
+        df_meteo = pd.read_csv("data/data_extracted/df_meteo_brut.csv")
 
     #### -- Meteo Transform :
 
@@ -50,15 +54,20 @@ def pipeline_meteo(df_cluster):
 
     return df_cluster_meteo
 
-def pipeline_town():
+def pipeline_town(bypass_extracts):
     """Run the Town ETL pipeline"""
     print("--- Starting TOWN ETL Pipeline...")
     print("=" * 50)
 
     #### -- TOWN Extract
+    if not bypass_extracts:
+        town_extractor = TownExtractor()
+        df_town = town_extractor.extract_data(["communes-france-2025.csv"])
 
-    town_extractor = TownExtractor()
-    df_town = town_extractor.extract_data(["communes-france-2025.csv"])
+        df_town.to_csv("data/data_extracted/df_town.csv", index=False) # Stockage intermédiaire
+
+    else :
+        df_town = pd.read_csv("data/data_extracted/df_town.csv")
 
     #### -- Town Transform
     Town_Transformer = TownTransformer(df_town)
@@ -66,24 +75,29 @@ def pipeline_town():
     df_towncleaned.to_csv("data/data_transformed/communes_france_cleaned.csv", index=False) # Stockage intermédiaire
 
     cluster_mapping = Town_Transformer.create_cluster_mapping() 
-    cluster_mapping.to_csv("data/data_transformed/cluster_mapping.csv") # Stockage table finale
+    cluster_mapping.to_csv("data/data_transformed/cluster_mapping.csv", index=False) # Stockage table finale
 
     print("✅ Town ETL Pipeline completed.")
     return df_towncleaned, cluster_mapping
 
-def pipeline_affluences(df_towncleaned):
+def pipeline_affluences(df_towncleaned, bypass_extracts):
     """Run the Affluences ETL pipeline"""
     print("--- Starting AFFLUENCE ETL Pipeline...")
     print("=" * 50)
     
     #### -- Attendance Extract 
-    Attendance_Extractor = AttendanceExtractor()
+    if not bypass_extracts:
+        Attendance_Extractor = AttendanceExtractor()
 
-    df_capacite = Attendance_Extractor.extract_data_capacite()
-    df_nb_nuitees = Attendance_Extractor.extract_data_nb_nuitees()
+        df_capacite = Attendance_Extractor.extract_data_capacite()
+        df_nb_nuitees = Attendance_Extractor.extract_data_nb_nuitees()
 
-    df_capacite.to_csv("data/data_extracted/df_capacite.csv", index=False)
-    df_nb_nuitees.to_csv("data/data_extracted/df_nb_nuitees.csv", index=False)
+        df_capacite.to_csv("data/data_extracted/df_capacite.csv", index=False)
+        df_nb_nuitees.to_csv("data/data_extracted/df_nb_nuitees.csv", index=False)
+    
+    else :
+        df_capacite = pd.read_csv("data/data_extracted/df_capacite.csv")
+        df_nb_nuitees = pd.read_csv("data/data_extracted/df_nb_nuitees.csv")
 
     #### -- Affluence Transform
     Attendance_Transformer = AttendanceTransformer()
@@ -100,39 +114,45 @@ def pipeline_affluences(df_towncleaned):
     print("✅ Affluence ETL Pipeline completed.")
     return df_affluence_cluster
 
-def pipeline_datatourisme(df_cluster):
+def pipeline_datatourisme(df_town, bypass_extracts):
     """Run the DataTourism ETL pipeline"""
     print("--- Starting DATA TOURISM ETL Pipeline...")
     print("=" * 50)
 
     #### -- DataTourism Extract 
 
-    DataTourism_Extractor = DataTourismExtractor()
-    df_datatourisme = DataTourism_Extractor.extract_data()
+    if not bypass_extracts:
+        DataTourism_Extractor = DataTourismExtractor()
+        df_datatourisme = DataTourism_Extractor.extract_data()
 
-    df_datatourisme.to_csv("data/data_extracted/df_datatourisme.csv", index=False)
+        df_datatourisme.to_csv("data/data_extracted/df_datatourisme.csv")
+    
+    else :
+        df_datatourisme = pd.read_csv("data/data_extracted/df_datatourisme.csv")
 
     #### -- Datatourism Transform 
     
-    DataTourism_Transformer = DataTourismTransformer(df_datatourisme, df_cluster)
+    DataTourism_Transformer = DataTourismTransformer(df_datatourisme, df_town)
     df_datatourisme_cleaned = DataTourism_Transformer.clean_data()
 
-    df_datatourisme_cleaned.to_csv("data/data_transformed/df_datatourisme_cleaned.csv", index=False) 
+    df_datatourisme_cleaned.to_csv("data/data_transformed/datatourism_cleaned.csv", index=False) 
 
     print("✅ DataTourism ETL Pipeline completed.")
     return df_datatourisme_cleaned
 
 if __name__ == "__main__":
-    df_town, df_cluster = pipeline_town()
+    BYPASS_EXTRACTS = False  # Set to True to skip extraction and use local files
+
+    df_town, df_cluster = pipeline_town(BYPASS_EXTRACTS)
 
     print("=" * 50)
 
-    df_meteo = pipeline_meteo(df_cluster)
+    df_meteo = pipeline_meteo(df_cluster, BYPASS_EXTRACTS)
 
     print("=" * 50)
     
-    df_affluence = pipeline_affluences(df_town)
+    df_affluence = pipeline_affluences(df_town, BYPASS_EXTRACTS)
 
     print("=" * 50)
 
-    df_datatourisme = pipeline_datatourisme(df_cluster)
+    df_datatourisme = pipeline_datatourisme(df_town, BYPASS_EXTRACTS)

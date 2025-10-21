@@ -43,6 +43,8 @@ class TownTransformer() :
             #On ajoute une colonne pour ré-indicer les clusters de communes réalisés selon les zones emploi définies par l'INSEE
             self.df_town['code_cluster'] = pd.factorize(self.df_town['code_insee_centre_zone_emploi'])[0] + 1
 
+            self.df_town.drop(["Unnamed: 0"], axis=1, inplace=True)
+
             return self.df_town
 
     def create_cluster_mapping(self):
@@ -68,6 +70,8 @@ class TownTransformer() :
         for cluster_code in self.cluster_mapping.index:
             biggest_town = self.get_biggest_town_cluster(cluster_code)
             self.cluster_mapping.at[cluster_code, 'ville_principale'] = biggest_town['nom_standard']
+
+        self.cluster_mapping.reset_index(inplace=True)
 
         return self.cluster_mapping
     
@@ -96,6 +100,4 @@ if __name__ == "__main__":
     df_cleaned.to_csv("data/data_transformed/communes_france_cleaned.csv", index=False)
 
     cluster_mapping = transformer.create_cluster_mapping()
-    cluster_mapping.to_csv("data/data_transformed/cluster_mapping.csv")
-
-    print(cluster_mapping.head())
+    cluster_mapping.to_csv("data/data_transformed/cluster_mapping.csv", index=False)

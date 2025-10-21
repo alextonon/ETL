@@ -203,20 +203,19 @@ class AttendanceTransformer() :
 
         df_affluences_cluster = pd.DataFrame()
 
-        cols = ["code_insee", "code_insee_centre_zone_emploi", "code_cluster"]
+        cols = ["code_insee", "code_cluster"]
         df_communes_unique = df_communes[cols].drop_duplicates(subset="code_insee", keep="first")
 
         # Jointure gauche sur le code INSEE
         df_affluences_cluster = (
             df_affluences
             .merge(df_communes_unique, how="left", left_on="insee_code", right_on="code_insee")
-            .rename(columns={"code_insee_centre_zone_emploi": "zone_emploi"})
             .drop(columns=["code_insee"])  # on n’a plus besoin de la clé à droite
         )
         
         
         df_affluences_cluster = (df_affluences_cluster.groupby(
-                            ['zone_emploi', 'id_activity', 'activity_type', 'time_period', 'code_cluster'], as_index=False)
+                            ['id_activity', 'activity_type', 'time_period', 'code_cluster'], as_index=False)
                             .agg({
                                 'capacity_city': 'sum',
                                 'nb_nights_city': 'sum'
@@ -233,6 +232,9 @@ class AttendanceTransformer() :
         ordered_cols = ['code_cluster'] + [col for col in df_affluences_cluster.columns if col != 'code_cluster']
         df_affluences_cluster = df_affluences_cluster[ordered_cols]
 
+        df_affluences_cluster["time_period"] = df_affluences_cluster["time_period"].astype(str).str[:2]
+        df_affluences_cluster["time_period"].rename("Mois", inplace=True)
+
         # Vérifie s’il reste des lignes sans cluster
         n_missing = df_affluences_cluster['code_cluster'].isna().sum()
         if n_missing > 0:
@@ -248,9 +250,6 @@ if __name__ == "__main__" :
 
     df_capacite = pd.read_csv("data/data_extracted/df_capacite.csv")
     df_nb_nuitees = pd.read_csv("data/data_extracted/df_nb_nuitees.csv")
-
-    
-    
 
     print("### --- df_capacite transformed--- ###")
     df_capacite = Transformer.transform_data_capacite(df_capacite)

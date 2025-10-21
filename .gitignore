@@ -1,5 +1,9 @@
 data/donnees-synop-essentielles-omm.csv
 *.pyc
 __pycache__/
+.vscode/
 
 data/data_extracted/df_meteo_brut.csv
+data/data_extracted/df_datatourisme.csv
+data/data_transformed/datatourism_cleaned.csv
+
