@@ -288,9 +288,9 @@ class AttendanceTransformer() :
         df_affluences_cluster = df_affluences_cluster[ordered_cols]
 
         # Vérifie s’il reste des lignes sans cluster
-        n_missing = df_merged['code_cluster'].isna().sum()
+        n_missing = df_affluences_cluster['code_cluster'].isna().sum()
         if n_missing > 0:
-            print(f"Attention : {n_missing} communes sans code_cluster dans df_communes")
+            print(f"Attention : {n_missing} communes sans code_cluster dans df_affluences_cluster.")
 
 
 
