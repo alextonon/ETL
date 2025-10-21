@@ -5,6 +5,8 @@
 DROP TABLE IF EXISTS meteo;
 DROP TABLE IF EXISTS affluence;
 DROP TABLE IF EXISTS clusters;
+DROP TABLE IF EXISTS tourisme;
+
 
 -- Table communes : contient les informations relatives à chaque commune française
 
@@ -18,10 +20,6 @@ CREATE TABLE clusters (
 );
 
 
--- Table tourisme : contient les informations relatives aux points d'intérêt du territoire français
---CREATE TABLE tourisme (
-   -- id SERIAL PRIMARY KEY
---);
 
 -- Table affluences : contient les données relatives à l'affluence touristique de chaque zone d'emploi du territoire français
 CREATE TABLE affluence (
@@ -46,7 +44,19 @@ CREATE TABLE meteo (
 );
 
 
-
+-- Table tourisme : contient les informations relatives aux points d'intérêt du territoire français
+CREATE TABLE tourisme (
+   ID TEXT,
+   code_cluster INT,
+   Nom_du_POI TEXT,
+   Categories_de_POI TEXT,
+   Latitude FLOAT,
+   Categorie_simplifiee TEXT,
+   Longitude FLOAT,
+   Date_de_mise_a_jour DATE,
+   Description TEXT,
+   PRIMARY KEY (ID)
+);
 
 
 -- Verify tables were created
