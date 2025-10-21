@@ -6,24 +6,31 @@ class MeteoExtractor:
     def __init__(self):
         pass
 
-    def get_brute_dataset(self):
+    def get_brute_dataset(self, local=True):
         # Logic to return the raw dataset
 
         # On utilise la fonction export, en ajoutant une selection sur les variables qui nous interessent  
         # Cela est possible grâce à la lecture de la doc
-        data_source = (
-            "https://public.opendatasoft.com/api/explore/v2.1/catalog/datasets/"
-            "donnees-synop-essentielles-omm/exports/csv?"
-            "select=date,latitude,longitude,nom_dept,code_dep,codegeo,pres,nom,tc,rr3,rr24,raf10"
-            "&lang=fr"
-            "&timezone=Europe%2FParis"
-            "&use_labels=true"
-            "&delimiter=%3B"
-        )
+        if local:
+            print("--- Reading meteorological data from local csv...")
+            self.df = pd.read_csv("data/donnees-synop-essentielles-omm.csv", sep=';')
 
-        print("📄 Reading meteorological data from CSV...")
+        else :
+            data_source = (
+                "https://public.opendatasoft.com/api/explore/v2.1/catalog/datasets/"
+                "donnees-synop-essentielles-omm/exports/csv?"
+                "select=date,latitude,longitude,nom_dept,code_dep,codegeo,pres,nom,tc,rr3,rr24,raf10"
+                "&lang=fr"
+                "&timezone=Europe%2FParis"
+                "&use_labels=true"
+                "&delimiter=%3B"
+            )
 
-        self.df = pd.read_csv(data_source, sep=';')
+            print("--- Reading meteorological data from Meteo France API...")
+
+            self.df = pd.read_csv(data_source, sep=';')
+
+        return self.df
 
         
 

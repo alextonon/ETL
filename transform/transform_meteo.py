@@ -10,6 +10,7 @@ class TransformMeteo:
         self.df_cluster_meteo = None
     
     def process_data(self, df_meteo_brut):
+        print("--- Starting brute data cleaning for Meteo...")
         # Logic to process the extracted data
         self.df = df_meteo_brut.copy()
 
@@ -67,6 +68,7 @@ class TransformMeteo:
         """
         Si df_mensuel est fourni, on l'utilise. Sinon, on utilise self.df_mensuel (dataset intermédiaire possible).
         """
+        print("--- Starting linking clusters with meteorological data...")
         df_m = df_mensuel if df_mensuel is not None else self.df_mensuel
         if df_m is None:
             raise ValueError("Aucun df_mensuel disponible. Passe df_mensuel ou appelle process_data().")

@@ -25,6 +25,30 @@ from transform.transform_data_tourisme import DataTourismTransformer
 from load.load_data import get_connection_string, load_to_database_affluence, load_to_database_clusters, load_to_database_meteo, test_database_connection 
 #from load.load_data import verify_data, run_sample_queries
 
+def pipeline_meteo(df_cluster):
+    """Run the Meteo ETL pipeline"""
+    print("--- Starting METEO ETL Pipeline...")
+    print("=" * 50)
+
+    #### -- Meteo Extract 
+
+    meteo_extractor = MeteoExtractor()
+    df_meteo = meteo_extractor.get_brute_dataset(local=True)
+
+    df_meteo.to_csv("data/data_extracted/df_meteo_brut.csv")
+
+    #### -- Meteo Transform :
+
+    transformer = TransformMeteo()
+
+    df_mensuel = transformer.process_data(df_meteo)
+
+    df_cluster_meteo = transformer.link_clusters_with_meteo(df_cluster, df_mensuel) 
+    df_cluster_meteo.to_csv("data/data_transformed/cluster_meteo.csv", index=False) # Stockage table finale
+
+    return df_cluster_meteo
+    
+
 
 def main():
 
@@ -213,4 +237,5 @@ def main():
     print("=" * 50)
 
 if __name__ == "__main__":
-    main()
+    df_cluster = pd.read_csv("data/cluster_mapping.csv")
+    pipeline_meteo(df_cluster)
