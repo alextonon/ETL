@@ -99,14 +99,14 @@ class TransformMeteo:
             'Pression station': 'pression_station',
             'Température (°C)': 'température',
             'Précipitations dans les 24 dernières heures': 'précipitations_24_dernières_heures',
-            'Rafales sur une période': 'rafales_sur_une_période'
+            'Rafales sur une période': 'rafales_10_dernières_minutes'
         }
         self.df_cluster_meteo.rename(columns={k:v for k,v in rename_map.items() if k in self.df_cluster_meteo.columns}, inplace=True)
 
         # Réordonner si toutes les colonnes sont là
         wanted = [
             'code_cluster','mois','pression_station','température',
-            'précipitations_24_dernières_heures','rafales_sur_une_période'
+            'précipitations_24_dernières_heures','rafales_10_dernières_minutes'
         ]
         existing = [c for c in wanted if c in self.df_cluster_meteo.columns]
         self.df_cluster_meteo = self.df_cluster_meteo[[c for c in wanted if c in existing] + [c for c in self.df_cluster_meteo.columns if c not in wanted]]

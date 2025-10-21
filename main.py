@@ -142,7 +142,7 @@ def pipeline_datatourisme(df_town, bypass_extracts):
 
 if __name__ == "__main__":
     # Time taken for ETL Pipeline: 371.25 seconds
-    BYPASS_EXTRACTS = False  # Set to True to skip extraction and use local files
+    BYPASS_EXTRACTS = True  # Set to True to skip extraction and use local files
 
     df_town, df_cluster = pipeline_town(BYPASS_EXTRACTS)
 
@@ -152,8 +152,8 @@ if __name__ == "__main__":
 
     print("=" * 50)
     
-    df_affluence = pipeline_affluences(df_town, BYPASS_EXTRACTS)
+    #df_affluence = pipeline_affluences(df_town, BYPASS_EXTRACTS)
 
     print("=" * 50)
 
-    df_datatourisme = pipeline_datatourisme(df_town, BYPASS_EXTRACTS)
+    #df_datatourisme = pipeline_datatourisme(df_town, BYPASS_EXTRACTS)

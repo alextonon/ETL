@@ -5,13 +5,19 @@
 DROP TABLE IF EXISTS meteo;
 DROP TABLE IF EXISTS affluence;
 DROP TABLE IF EXISTS clusters;
-DROP TABLE IF EXISTS tourisme;
+DROP TABLE IF EXISTS datatourisme;
+DROP TABLE IF EXISTS scoretourisme;
+
+DROP VIEW IF EXISTS dataconsolidee;
+DROP VIEW IF EXISTS affluence_pivot;
+
+
 
 
 -- Table communes : contient les informations relatives à chaque commune française
 
 CREATE TABLE clusters (
-    code_cluster VARCHAR(5) PRIMARY KEY,
+    code_cluster INT PRIMARY KEY,
     code_insee_centre_zone_emploi VARCHAR(5),
     nom_standard VARCHAR(100),
     latitude_centre FLOAT,
@@ -45,7 +51,7 @@ CREATE TABLE meteo (
 
 
 -- Table tourisme : contient les informations relatives aux points d'intérêt du territoire français
-CREATE TABLE tourisme (
+CREATE TABLE datatourisme (
    ID TEXT,
    code_cluster INT,
    Nom_du_POI TEXT,
@@ -59,8 +65,29 @@ CREATE TABLE tourisme (
    PRIMARY KEY (ID)
 );
 
+CREATE TABLE scoretourisme (
+    code_cluster INT,
+    mois INT, 
+    score_logement INT, 
+    score_tourism_center INT,
+    score_nourriture INT,
+    score_event INT,
+    
+    -- --transport,
+    --         "Activités": activités,
+    --         "Sport": Sport,
+    --         "Sport_hiver": Sport_hiver,
+    --         "Balade": Balade,
+    --         "Park": Park,
+    --         "Magasin": Magasin,
+    --         "Culture": Culture,
+    --         "Sortie_soir": Sortie_soir,
+    --     }
+    PRIMARY KEY (code_cluster, mois)
+);
 
 -- Verify tables were created
 \dt
 
 SELECT 'Database setup complete!' as status;
+
