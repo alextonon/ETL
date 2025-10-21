@@ -129,8 +129,6 @@ class AttendanceTransformer() :
             df_calc['nb_nights_camping_year'] * df_calc['nb_nights'] / df_calc['nb_nights_hotel_year']
                                             )
 
-        print(df_calc[['dept_code','time_period','nb_nights','nb_nights_hotel_year','nb_nights_camping_year']].head(12))
-
         # On récupère les données mensuelles des campings ainsi calculées
         df_campings_month = df_calc[['dept_code','time_period','nb_nights_camping_month']].copy()
         df_campings_month['id_activity'] = 'I553'
@@ -154,7 +152,7 @@ class AttendanceTransformer() :
         return df_final
 
 
-    def creation_dataframe_affluences(self,df_capacite, df_nb_nuitees) :
+    def creation_dataframe_affluences(self, df_capacite, df_nb_nuitees) :
         """
         Création du dataframe d'affluences qui servira à l'algorithme global Voyage Voyage. Le but est 
         de fournir, pour chaque cluster spatial (cf  transform_clusterizer.py), un nombre de 
@@ -253,8 +251,6 @@ class AttendanceTransformer() :
 
         df_affluences_cluster = pd.DataFrame()
 
-        df_affluences['zone_emploi'] = None
-
         cols = ["code_insee", "code_insee_centre_zone_emploi", "code_cluster"]
         df_communes_unique = df_communes[cols].drop_duplicates(subset="code_insee", keep="first")
 
@@ -265,8 +261,6 @@ class AttendanceTransformer() :
             .rename(columns={"code_insee_centre_zone_emploi": "zone_emploi"})
             .drop(columns=["code_insee"])  # on n’a plus besoin de la clé à droite
         )
-
-        print(df_affluences_cluster.head())
         
         
         df_affluences_cluster = (df_affluences_cluster.groupby(

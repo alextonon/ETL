@@ -94,15 +94,33 @@ def pipeline_affluences(df_towncleaned):
     df_affluences = Attendance_Transformer.creation_dataframe_affluences(df_capacite, df_nb_nuitees)
 
 
-    df_affluence_cluster = AttendanceTransformer.affluences_cluster(df_affluences, df_towncleaned)
+    df_affluence_cluster = Attendance_Transformer.affluences_cluster(df_affluences, df_towncleaned)
 
     df_affluence_cluster.to_csv("data/data_transformed/cluster_affluence.csv", index = False) 
     print("✅ Affluence ETL Pipeline completed.")
     return df_affluence_cluster
 
+def pipeline_datatourisme(df_cluster):
+    """Run the DataTourism ETL pipeline"""
+    print("--- Starting DATA TOURISM ETL Pipeline...")
+    print("=" * 50)
 
+    #### -- DataTourism Extract 
+
+    DataTourism_Extractor = DataTourismExtractor()
+    df_datatourisme = DataTourism_Extractor.extract_data()
+
+    df_datatourisme.to_csv("data/data_extracted/df_datatourisme.csv", index=False)
+
+    #### -- Datatourism Transform 
     
+    DataTourism_Transformer = DataTourismTransformer(df_datatourisme, df_cluster)
+    df_datatourisme_cleaned = DataTourism_Transformer.clean_data()
 
+    df_datatourisme_cleaned.to_csv("data/data_transformed/df_datatourisme_cleaned.csv", index=False) 
+
+    print("✅ DataTourism ETL Pipeline completed.")
+    return df_datatourisme_cleaned
 
 def main():
 
@@ -132,10 +150,6 @@ def main():
     cluster_mapping.to_csv("data/data_transformed/cluster_mapping.csv")
 
     print("Données nettoyées et sauvegardées dans '/data_transformed")
-
-    
-    
-
 
     #### ----- AFFLUENCE ---- ####
 
@@ -187,10 +201,10 @@ def main():
     #df_meteo_cleaned = transformer.process_data()
     #df_meteo_cleaned.to_csv("data/data_transformed/meteo_cleaned.csv", index=False)
     df_meteo_cleaned = pd.read_csv("data/meteo_cleaned.csv")
-    TransformMeteo.df_mensuel = df_meteo_cleaned  
+    MeteoTransformer.df_mensuel = df_meteo_cleaned  
 
     df_cluster = pd.read_csv("data/cluster_mapping.csv")
-    df_cluster_meteo = TransformMeteo.link_clusters_with_meteo(df_cluster)
+    df_cluster_meteo = MeteoTransformer.link_clusters_with_meteo(df_cluster)
     df_cluster_meteo.to_csv("data/data_transformed/cluster_meteo.csv", index=False)
 
 
@@ -299,4 +313,8 @@ if __name__ == "__main__":
 
     print("=" * 50)
     
-    df_affluence = pipeline_affluences(df_town)
+    # df_affluence = pipeline_affluences(df_town)
+
+    print("=" * 50)
+
+    df_datatourisme = pipeline_datatourisme(df_cluster)

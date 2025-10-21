@@ -4,13 +4,106 @@ from extract.extract_data_tourisme import DataTourismExtractor
 
 
 class DataTourismTransformer():
-    def __init__(self, df_tourism, cat_to_keep, categorie_dict, df_cluster) -> None:
+    def __init__(self, df_tourism, df_cluster) -> None:
         self.df_tourism = df_tourism
-        self.cat_to_keep = cat_to_keep
-        self.categorie_dict = categorie_dict
         self.df_cluster = df_cluster
 
         self.df_DataTourisme = pd.DataFrame()
+
+        list_df = ["datatourisme-reg-ara.csv", "datatourisme-reg-bfc.csv", "datatourisme-reg-bre.csv",
+        "datatourisme-reg-cor.csv", "datatourisme-reg-cvl.csv", "datatourisme-reg-gde.csv",
+        "datatourisme-reg-hdf.csv", "datatourisme-reg-naq.csv", "datatourisme-reg-nor.csv",
+        "datatourisme-reg-idf.csv",  "datatourisme-reg-occ.csv", "datatourisme-reg-pac.csv",
+        "datatourisme-reg-pdl.csv"]
+
+
+        # A garder score cacher qui compte sans un poids du client
+        Logement = ['Hotel', 'BedAndBreakfast', 'HotelRestaurant', 'Hostel', 'CampingAndCaravanning',
+                    'Accommodation', 'HotelTrade', 'RentalAccommodation', 'CollectiveAccommodation', 'TableHoteGuesthouse',
+                    "AccommodationProduct", 'Guesthouse', 'House'] # LodgingBusiness = logement qui accepte les buisness
+
+        # A garder score cacher qui compte sans un poids du client
+        tourism_center = ["TouristInformationCenter"]
+
+        # Garder
+        Nourriture = ["FoodEstablishment", 'Restaurant', 'CafeOrCoffeeShop', 'IceCreamShop', 'Bakery']
+
+        # Garder
+        Event = ['SaleEvent', 'TheaterEvent', 'Event', 'Festival', 'MusicEvent', "SportsEvent", 'TraditionalCelebration', 'ShowEvent', 'ChildrensEvent',
+                'Concert', 'Exhibition', 'LocalAnimation', 'Rambling']
+
+        # A garder score cacher qui compte sans un poids du client
+        transport = ['Transport', 'TrainStation', 'BusStation', 'Transporter', 'Airport', 'TaxiCompany'] # Transport = principalement des ports/ BusStation = gare routière
+
+        # Garder
+        activités = ['Product', 'Hammam', 'AmusementPark', 'Landform', 'Casino',  'BowlingAlley', 'RailBike', 'MiniGolf', 'AdventurePark'
+                    'BalneotherapyCentre', 'SummerToboggan', 'NauticalCentre',
+                    'TastingProvider', 'ActivityProvider',  'Rental', 'Trampoline', 'EquestrianCenter', 'EquipmentRental',
+                    "Tour", 'LeisureSportActivityProvider', 'Practice', 'EntertainmentAndEvent', 'MegalithDolmenMenhir', 'TrainingWorkshop', 'TeachingFarm',
+                    "CulturalActivityProvider", 'Cinematheque', 'Visit', 'WalkingTour'] # Product = visite en tt genre / Landform = Plage /  Tour = sentier de rando
+
+        # A garder
+        Sport = ['SportsAndLeisurePlace', 'OrderedList',  'GolfCourse', 'ClimbingWall', 'TennisComplex', 
+                "CyclingTour", 'TerrainPark', 'FrontonBelotaCourt', 'SportsClub'] # OrderedList = rando + VTT
+
+        # A garder
+        Sport_hiver = ['CrossCountrySkiTrail', 'DownhillSkiRun', 'DownhillSkiResort', 'CrossCountrySkiResort']
+
+
+        # A garder
+        Balade = ['NaturalHeritage', 'ServiceArea','EducationalTrail', 'ViaFerrata', 'RomanPath', 'LevyOrDike',] # ServiceArea = Site pour observer les étoile / EducationalTrail = balade / LevyOrDike = balade de barrage
+
+        # A garder
+        Park = ['Park', 'CivicStructure', 'PicnicArea', 'ParkAndGarden'] # CivicStructure = Parcoure de santé, air de jeux
+
+        Magasin = ['CoveredMarket', "Store", 'Market', 'LocalProductsShop', 'BoutiqueOrLocalShop']
+
+
+        # A garder
+        Culture = ['Church', 'RemarkableBuilding', 'TechnicalHeritage', 'Cloister', 'Cathedral', 'FortifiedCastle', 'Palace', 
+                    'Fort', 'ReligiousSite', 'Temple', "Ruins", "RemembranceSite", 'Dungeon', 'DefenceSite', 'Abbey', 'Convent', 
+                    'Monastery', 'Collegiate', 'Tower', 'Fountain','Chapel', 'Mine', 'Bridge', 'Basilica', 'Chartreuse',
+                    'BuddhistTemple', 'Mosque', 'Aqueduct', 'ArcheologicalSite',"Castle", 'Synagogue', 'FortifiedSet', 'Citadel', 
+                    "RemarkableHouse", "Commanderie", 'Marina', 'Bastide', 'Lighthouse','Arena', 'LocalBusiness', 'Aquarium', 
+                    "CulturalSite", 'Theater', "Library", 'Museum'] # RemembranceSite = Memoriale,...
+
+        # A garder
+        Sortie_soir = ['Winery', 'NightClub', 'BistroOrWineBar', 'BrasserieOrTavern']
+
+        self.cat_to_keep = ['Winery', 'NightClub', 'BistroOrWineBar', 'BrasserieOrTavern', 'Church', 'RemarkableBuilding', 'TechnicalHeritage', 
+                'Cloister', 'Cathedral', 'FortifiedCastle', 'Palace', 'BalneotherapyCentre', 'SummerToboggan', 'NauticalCentre',
+                    'Fort', 'ReligiousSite', 'Temple', "Ruins", "RemembranceSite", 'Dungeon', 'DefenceSite', 'Abbey', 'Convent', 
+                    'Monastery', 'Collegiate', 'Tower', 'Fountain','Chapel', 'Mine', 'Bridge', 'Basilica', 'Chartreuse',
+                    'BuddhistTemple', 'Mosque', 'Aqueduct', 'ArcheologicalSite',"Castle", 'Synagogue', 'FortifiedSet', 'Citadel', 
+                    "RemarkableHouse", "Commanderie", 'Marina', 'Bastide', 'Lighthouse','Arena', 'LocalBusiness', 'Aquarium', 
+                    "CulturalSite", 'Theater', "Library", 'Museum', 'Hotel', 'BedAndBreakfast', 'HotelRestaurant', 'Hostel', 'CampingAndCaravanning',
+                    'Accommodation', 'HotelTrade', 'RentalAccommodation', 'CollectiveAccommodation', 'TableHoteGuesthouse',
+                    "AccommodationProduct", 'Guesthouse', 'House', "TouristInformationCenter", "FoodEstablishment", 'Restaurant', 'CafeOrCoffeeShop', 'IceCreamShop', 'Bakery',
+                    'SaleEvent', 'TheaterEvent', 'Event', 'Festival', 'MusicEvent', "SportsEvent", 'TraditionalCelebration', 'ShowEvent', 'ChildrensEvent',
+                    'Concert', 'Exhibition', 'LocalAnimation', 'Rambling', 'Transport', 'TrainStation', 'BusStation', 'Transporter', 'Airport', 'TaxiCompany',
+                    'Product', 'Hammam', 'AmusementPark', 'Landform', 'Casino',  'BowlingAlley', 'RailBike', 'MiniGolf', 'AdventurePark'
+                    'TastingProvider', 'ActivityProvider',  'Rental', 'Trampoline', 'EquestrianCenter', 'EquipmentRental',
+                    "Tour", 'LeisureSportActivityProvider', 'Practice', 'EntertainmentAndEvent', 'MegalithDolmenMenhir', 'TrainingWorkshop', 'TeachingFarm',
+                    "CulturalActivityProvider", 'Cinematheque', 'Visit', 'WalkingTour', 'SportsAndLeisurePlace', 'OrderedList',  'GolfCourse', 'ClimbingWall', 'TennisComplex', 
+                    "CyclingTour", 'TerrainPark', 'FrontonBelotaCourt', 'SportsClub', 'CrossCountrySkiTrail', 'DownhillSkiRun', 'DownhillSkiResort', 'CrossCountrySkiResort',
+                    'NaturalHeritage', 'ServiceArea','EducationalTrail', 'ViaFerrata', 'RomanPath', 'LevyOrDike','Park', 'CivicStructure', 'PicnicArea', 'ParkAndGarden',
+                    'CoveredMarket', "Store", 'Market', 'LocalProductsShop', 'BoutiqueOrLocalShop']
+
+        self.categorie_dict = {
+            "Logement": Logement,
+            "Tourism_center": tourism_center,
+            "Nourriture": Nourriture,
+            "Event": Event,
+            "Transport": transport,
+            "Activités": activités,
+            "Sport": Sport,
+            "Sport_hiver": Sport_hiver,
+            "Balade": Balade,
+            "Park": Park,
+            "Magasin": Magasin,
+            "Culture": Culture,
+            "Sortie_soir": Sortie_soir,
+        }
 
     def clean_data(self):
         """
@@ -166,108 +259,7 @@ if __name__ == "__main__":
     ### Cluster ###
 
 
-    list_df = ["datatourisme-reg-ara.csv", "datatourisme-reg-bfc.csv", "datatourisme-reg-bre.csv",
-        "datatourisme-reg-cor.csv", "datatourisme-reg-cvl.csv", "datatourisme-reg-gde.csv",
-        "datatourisme-reg-hdf.csv", "datatourisme-reg-naq.csv", "datatourisme-reg-nor.csv",
-        "datatourisme-reg-idf.csv",  "datatourisme-reg-occ.csv", "datatourisme-reg-pac.csv",
-        "datatourisme-reg-pdl.csv"]
-
-    extractor = DataTourismExtractor(list_df)
-
-    # extractor.extract_csv()
-    df_tourism = extractor.extract_data()
-
-    # print(df_tourism)
-
-    # A garder score cacher qui compte sans un poids du client
-    Logement = ['Hotel', 'BedAndBreakfast', 'HotelRestaurant', 'Hostel', 'CampingAndCaravanning',
-                'Accommodation', 'HotelTrade', 'RentalAccommodation', 'CollectiveAccommodation', 'TableHoteGuesthouse',
-                "AccommodationProduct", 'Guesthouse', 'House'] # LodgingBusiness = logement qui accepte les buisness
-
-    # A garder score cacher qui compte sans un poids du client
-    tourism_center = ["TouristInformationCenter"]
-
-    # Garder
-    Nourriture = ["FoodEstablishment", 'Restaurant', 'CafeOrCoffeeShop', 'IceCreamShop', 'Bakery']
-
-    # Garder
-    Event = ['SaleEvent', 'TheaterEvent', 'Event', 'Festival', 'MusicEvent', "SportsEvent", 'TraditionalCelebration', 'ShowEvent', 'ChildrensEvent',
-            'Concert', 'Exhibition', 'LocalAnimation', 'Rambling']
-
-    # A garder score cacher qui compte sans un poids du client
-    transport = ['Transport', 'TrainStation', 'BusStation', 'Transporter', 'Airport', 'TaxiCompany'] # Transport = principalement des ports/ BusStation = gare routière
-
-    # Garder
-    activités = ['Product', 'Hammam', 'AmusementPark', 'Landform', 'Casino',  'BowlingAlley', 'RailBike', 'MiniGolf', 'AdventurePark'
-                'BalneotherapyCentre', 'SummerToboggan', 'NauticalCentre',
-                'TastingProvider', 'ActivityProvider',  'Rental', 'Trampoline', 'EquestrianCenter', 'EquipmentRental',
-                "Tour", 'LeisureSportActivityProvider', 'Practice', 'EntertainmentAndEvent', 'MegalithDolmenMenhir', 'TrainingWorkshop', 'TeachingFarm',
-                "CulturalActivityProvider", 'Cinematheque', 'Visit', 'WalkingTour'] # Product = visite en tt genre / Landform = Plage /  Tour = sentier de rando
-
-    # A garder
-    Sport = ['SportsAndLeisurePlace', 'OrderedList',  'GolfCourse', 'ClimbingWall', 'TennisComplex', 
-            "CyclingTour", 'TerrainPark', 'FrontonBelotaCourt', 'SportsClub'] # OrderedList = rando + VTT
-
-    # A garder
-    Sport_hiver = ['CrossCountrySkiTrail', 'DownhillSkiRun', 'DownhillSkiResort', 'CrossCountrySkiResort']
-
-
-    # A garder
-    Balade = ['NaturalHeritage', 'ServiceArea','EducationalTrail', 'ViaFerrata', 'RomanPath', 'LevyOrDike',] # ServiceArea = Site pour observer les étoile / EducationalTrail = balade / LevyOrDike = balade de barrage
-
-    # A garder
-    Park = ['Park', 'CivicStructure', 'PicnicArea', 'ParkAndGarden'] # CivicStructure = Parcoure de santé, air de jeux
-
-    Magasin = ['CoveredMarket', "Store", 'Market', 'LocalProductsShop', 'BoutiqueOrLocalShop']
-
-
-    # A garder
-    Culture = ['Church', 'RemarkableBuilding', 'TechnicalHeritage', 'Cloister', 'Cathedral', 'FortifiedCastle', 'Palace', 
-                'Fort', 'ReligiousSite', 'Temple', "Ruins", "RemembranceSite", 'Dungeon', 'DefenceSite', 'Abbey', 'Convent', 
-                'Monastery', 'Collegiate', 'Tower', 'Fountain','Chapel', 'Mine', 'Bridge', 'Basilica', 'Chartreuse',
-                'BuddhistTemple', 'Mosque', 'Aqueduct', 'ArcheologicalSite',"Castle", 'Synagogue', 'FortifiedSet', 'Citadel', 
-                "RemarkableHouse", "Commanderie", 'Marina', 'Bastide', 'Lighthouse','Arena', 'LocalBusiness', 'Aquarium', 
-                "CulturalSite", 'Theater', "Library", 'Museum'] # RemembranceSite = Memoriale,...
-
-    # A garder
-    Sortie_soir = ['Winery', 'NightClub', 'BistroOrWineBar', 'BrasserieOrTavern']
-
-
-
-    Liste_to_keep = ['Winery', 'NightClub', 'BistroOrWineBar', 'BrasserieOrTavern', 'Church', 'RemarkableBuilding', 'TechnicalHeritage', 
-            'Cloister', 'Cathedral', 'FortifiedCastle', 'Palace', 'BalneotherapyCentre', 'SummerToboggan', 'NauticalCentre',
-                'Fort', 'ReligiousSite', 'Temple', "Ruins", "RemembranceSite", 'Dungeon', 'DefenceSite', 'Abbey', 'Convent', 
-                'Monastery', 'Collegiate', 'Tower', 'Fountain','Chapel', 'Mine', 'Bridge', 'Basilica', 'Chartreuse',
-                'BuddhistTemple', 'Mosque', 'Aqueduct', 'ArcheologicalSite',"Castle", 'Synagogue', 'FortifiedSet', 'Citadel', 
-                "RemarkableHouse", "Commanderie", 'Marina', 'Bastide', 'Lighthouse','Arena', 'LocalBusiness', 'Aquarium', 
-                "CulturalSite", 'Theater', "Library", 'Museum', 'Hotel', 'BedAndBreakfast', 'HotelRestaurant', 'Hostel', 'CampingAndCaravanning',
-                'Accommodation', 'HotelTrade', 'RentalAccommodation', 'CollectiveAccommodation', 'TableHoteGuesthouse',
-                "AccommodationProduct", 'Guesthouse', 'House', "TouristInformationCenter", "FoodEstablishment", 'Restaurant', 'CafeOrCoffeeShop', 'IceCreamShop', 'Bakery',
-                'SaleEvent', 'TheaterEvent', 'Event', 'Festival', 'MusicEvent', "SportsEvent", 'TraditionalCelebration', 'ShowEvent', 'ChildrensEvent',
-                'Concert', 'Exhibition', 'LocalAnimation', 'Rambling', 'Transport', 'TrainStation', 'BusStation', 'Transporter', 'Airport', 'TaxiCompany',
-                'Product', 'Hammam', 'AmusementPark', 'Landform', 'Casino',  'BowlingAlley', 'RailBike', 'MiniGolf', 'AdventurePark'
-                'TastingProvider', 'ActivityProvider',  'Rental', 'Trampoline', 'EquestrianCenter', 'EquipmentRental',
-                "Tour", 'LeisureSportActivityProvider', 'Practice', 'EntertainmentAndEvent', 'MegalithDolmenMenhir', 'TrainingWorkshop', 'TeachingFarm',
-                "CulturalActivityProvider", 'Cinematheque', 'Visit', 'WalkingTour', 'SportsAndLeisurePlace', 'OrderedList',  'GolfCourse', 'ClimbingWall', 'TennisComplex', 
-                "CyclingTour", 'TerrainPark', 'FrontonBelotaCourt', 'SportsClub', 'CrossCountrySkiTrail', 'DownhillSkiRun', 'DownhillSkiResort', 'CrossCountrySkiResort',
-                'NaturalHeritage', 'ServiceArea','EducationalTrail', 'ViaFerrata', 'RomanPath', 'LevyOrDike','Park', 'CivicStructure', 'PicnicArea', 'ParkAndGarden',
-                'CoveredMarket', "Store", 'Market', 'LocalProductsShop', 'BoutiqueOrLocalShop']
-
-    categorie_dict = {
-        "Logement": Logement,
-        "Tourism_center": tourism_center,
-        "Nourriture": Nourriture,
-        "Event": Event,
-        "Transport": transport,
-        "Activités": activités,
-        "Sport": Sport,
-        "Sport_hiver": Sport_hiver,
-        "Balade": Balade,
-        "Park": Park,
-        "Magasin": Magasin,
-        "Culture": Culture,
-        "Sortie_soir": Sortie_soir,
-    }
+    
 
     df_cluster = pd.read_csv('data/data_transformed/communes_france_cleaned.csv', low_memory=False)
    

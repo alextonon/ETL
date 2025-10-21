@@ -3,8 +3,8 @@ import requests
 import os
 
 class DataTourismExtractor():
-    def __init__(self, list_chemin) -> None:
-        self.list_chemin = list_chemin
+    def __init__(self) -> None:
+        self.list_chemin = ["datatourisme-reg-ara.csv", "datatourisme-reg-bfc.csv", "datatourisme-reg-bre.csv"]
 
     def extract_csv(self):
         """Fonction d'appel à l'API du site du gouvernement afin de telecharger les fichiers CSV de DataTourisme sur chaque région 
