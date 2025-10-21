@@ -6,11 +6,6 @@ class MeteoExtractor:
     def __init__(self):
         pass
 
-
-    def extract(self):
-        # Logic to extract meteorological data from the data source
-        pass
-
     def get_brute_dataset(self):
         # Logic to return the raw dataset
 
@@ -38,7 +33,6 @@ if __name__ == '__main__' :
 
     df_meteo = Extractor.get_brute_dataset()
 
-    #%%%% trop long ?
     df_meteo.to_csv("data/data_extracted/df_meteo_brut.csv")
 
     print(df_meteo.head())
