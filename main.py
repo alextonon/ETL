@@ -133,22 +133,24 @@ def pipeline_datatourisme(df_town, bypass_extracts):
     #### -- Datatourism Transform 
     
     DataTourism_Transformer = DataTourismTransformer(df_datatourisme, df_town)
-    df_datatourisme_cleaned = DataTourism_Transformer.clean_data()
+    df_datatourisme_cleaned, df_score_POI_cluster = DataTourism_Transformer.clean_data()
 
     df_datatourisme_cleaned.to_csv("data/data_transformed/datatourism_cleaned.csv", index=False) 
+    
+    df_score_POI_cluster.to_csv('data/data_transformed/datatourism_score_cluster.csv')
 
     print("✅ DataTourism ETL Pipeline completed.")
     return df_datatourisme_cleaned
 
 if __name__ == "__main__":
     # Time taken for ETL Pipeline: 371.25 seconds
-    BYPASS_EXTRACTS = True  # Set to True to skip extraction and use local files
+    BYPASS_EXTRACTS = False  # Set to True to skip extraction and use local files
 
     df_town, df_cluster = pipeline_town(BYPASS_EXTRACTS)
 
     print("=" * 50)
 
-    df_meteo = pipeline_meteo(df_cluster, BYPASS_EXTRACTS)
+    # df_meteo = pipeline_meteo(df_cluster, BYPASS_EXTRACTS)
 
     print("=" * 50)
     
@@ -156,4 +158,4 @@ if __name__ == "__main__":
 
     print("=" * 50)
 
-    #df_datatourisme = pipeline_datatourisme(df_town, BYPASS_EXTRACTS)
+    df_datatourisme = pipeline_datatourisme(df_town, BYPASS_EXTRACTS)

@@ -136,6 +136,17 @@ class DataTourismTransformer():
 
         # On récupère dans un dataframe temporaire les données importante
         df_temp = df["Code_postal_et_commune"].str.replace('#', ' ', regex=False).str.replace('+', '', regex=False).str.split(n=1, expand=True)
+        # df_temp = df["Code_postal_et_commune"]
+
+        df_temp.columns = ["code_postal", "Commune"]
+        # df['Code_postale'] = df['Code_postale'].astype(str).str.extract('(\d+)')[0].astype(int)
+        df_temp["Département"] = df_temp["code_postal"].str[0:2].astype(int)
+
+        df.drop(columns=["Code_postal_et_commune"], inplace=True)
+
+        # On inserre les colonne créer
+        df.insert(col_index, "Département", df_temp["Département"])
+        df.insert(col_index + 1, "code_postal", df_temp["code_postal"])
 
         ### Passage des dates en format datetime ###
         df["Date_de_mise_a_jour"] = pd.to_datetime(df["Date_de_mise_a_jour"])
@@ -151,7 +162,7 @@ class DataTourismTransformer():
             for key, values in self.categorie_dict.items():
                 if cat in values:
                     return key
-            return "Autre"  # si aucune correspondance trouvée
+            # return "Autre"  # si aucune correspondance trouvée
 
         df.insert(3, 'Categorie_simplifiee', df["Categories_de_POI"].apply(find_category)) 
 
@@ -173,7 +184,6 @@ class DataTourismTransformer():
 
 
         ### On convertis les code postaux en floatant ###
-        df['code_postal'] = df_temp[0]
         df['code_postal'] = df['code_postal'].astype(float)
 
         self.df_cluster = self.df_cluster.drop_duplicates(subset="code_postal", keep="first")
@@ -186,21 +196,29 @@ class DataTourismTransformer():
             how='left' 
         )
 
-
-        print(f'Il reste {len(df)} data après nettoyage.') 
+        ### On réindexe en fonction du département ###
+        df = df.sort_values(by=['Département'], ascending=[True]).reset_index(drop=True)
 
         # code_cluster en 2e colonne
         cols = ['ID', 'code_cluster', 'Nom_du_POI', 'Categories_de_POI', 'Categorie_simplifiee', 'Latitude', 
                 'Longitude','Date_de_mise_a_jour', 'Description', 'URI_ID_du_POI']
         df = df[cols]
 
+        df.dropna(subset=["code_cluster"], inplace=True)
+
+        df.reset_index(drop=True, inplace=True)
+
         self.df_DataTourisme = df.copy()
 
-        self.df_DataTourisme.reset_index(drop=True, inplace=True)
+        print(f'Il reste {len(df)} data après nettoyage.') 
 
-        self.df_DataTourisme.dropna(subset=["code_cluster"], inplace=True)
+        ### On créer un nouveau dataframe pour garder uniquement le nombre de POI par cluster par activiter ###
 
-        return df
+        pivot_df = df.groupby(["code_cluster", "Categorie_simplifiee"]).size().unstack(fill_value=0)
+        score_cluster_POI_df = pivot_df.rename_axis(columns=None).reset_index()
+                
+
+        return df, score_cluster_POI_df
 
 
 if __name__ == "__main__":
@@ -209,8 +227,9 @@ if __name__ == "__main__":
 
     tourism_transformer = DataTourismTransformer(df_tourism, df_cluster)
 
-    df_dataTourisme = tourism_transformer.clean_data()
+    df_dataTourisme, df_score_POI_cluster = tourism_transformer.clean_data()
 
     df_dataTourisme.to_csv('data/data_transformed/datatourism_cleaned.csv')
-    print("Data enregistrée avec succès")
 
+    df_score_POI_cluster.to_csv('data/data_transformed/datatourism_score_cluster.csv')
+    print("Data enregistrée avec succès")

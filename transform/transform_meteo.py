@@ -115,6 +115,8 @@ class TransformMeteo:
 
         self.df_cluster_meteo.reset_index(drop=True, inplace=True)
 
+        self.df_cluster_meteo.drop_duplicates(["mois", "code_cluster"], inplace=True)
+
         return self.df_cluster_meteo
 
 
@@ -129,5 +131,3 @@ if __name__ == "__main__":
     df_cluster = pd.read_csv("data/data_transformed/cluster_mapping.csv")
     df_cluster_meteo = transformer.link_clusters_with_meteo(df_cluster) 
     df_cluster_meteo.to_csv("data/data_transformed/cluster_meteo.csv", index=False)
-
-    print(df_cluster_meteo.head())
