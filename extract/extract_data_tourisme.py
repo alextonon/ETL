@@ -37,10 +37,10 @@ class DataTourismExtractor():
             
                 for part in data.get('data', []):
 
-                    # On récupère les titres des fichier 
+                    # On récupère les titres des fichiers 
                     title = part.get('title')
                     
-                    # Si on est dans la liste des csv a garder
+                    # Si on est dans la liste des csv à garder
                     if title in  self.list_chemin:
                         
                         url_csv  = part.get('url')

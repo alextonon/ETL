@@ -45,17 +45,21 @@ Notre projet utilise plusieurs sources de données, qui sont quasiment indépend
 
 ## Gestion des variables d'environnement
 
-La phase de chargement des données au sein de tables SQL nécessite une connexion à un compte PostGreSQL. Pour ce faire, une fois ce repository Git récupéré en local, il faut insérer ses identifiants de connexion dans un fichier .env localisé à la racine du projet, sous cette forme :
+La phase de chargement des données au sein de tables SQL nécessite une connexion à un compte PostGreSQL. Pour ce faire, une fois ce repository Git récupéré en local, il faut : 
 
-```
-username = 'nom_utilisateur'
-password = 'mot_de_passe'
-host = 'localhost'
-port = '5432'
-database = 'db_voyagevoyage'    
-```
+----> insérer ses identifiants de connexion dans un fichier .env localisé à la racine du projet, sous cette forme :
 
-Et créer une database db_voyagevoyage dans PostGreSQL.
+                        ```
+                        DB_USERNAME= 'username'
+                        DB_PASSWORD= 'password'
+                        DB_HOST= 'localhost'
+                        DB_PORT='5432'
+                        DB_NAME= 'db_voyagevoyage'
+                        ```
+
+----> créer une database db_voyagevoyage dans PostGreSQL.
+
+----> exécuter le script /load/database_setup.sql
 
 ## Description des différents dossiers
 

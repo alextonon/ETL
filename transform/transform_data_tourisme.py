@@ -18,17 +18,17 @@ class DataTourismTransformer():
         # A garder score caché qui compte sans un poids du client
         tourism_center = ["TouristInformationCenter"]
 
-        # Garder
+        # A Garder
         Nourriture = ["FoodEstablishment", 'Restaurant', 'CafeOrCoffeeShop', 'IceCreamShop', 'Bakery']
 
-        # Garder
+        # A Garder
         Event = ['SaleEvent', 'TheaterEvent', 'Event', 'Festival', 'MusicEvent', "SportsEvent", 'TraditionalCelebration', 'ShowEvent', 'ChildrensEvent',
                 'Concert', 'Exhibition', 'LocalAnimation', 'Rambling']
 
         # A garder score caché qui compte sans un poids du client
         transport = ['Transport', 'TrainStation', 'BusStation', 'Transporter', 'Airport', 'TaxiCompany'] # Transport = principalement des ports/ BusStation = gare routière
 
-        # Garder
+        # A Garder
         activités = ['Product', 'Hammam', 'AmusementPark', 'Landform', 'Casino',  'BowlingAlley', 'RailBike', 'MiniGolf', 'AdventurePark'
                     'BalneotherapyCentre', 'SummerToboggan', 'NauticalCentre',
                     'TastingProvider', 'ActivityProvider',  'Rental', 'Trampoline', 'EquestrianCenter', 'EquipmentRental',
@@ -102,7 +102,7 @@ class DataTourismTransformer():
         """
         Fonction permettant de nettoyer les données brut du dataset DataTourisme. Cette fonction réalise plusieurs
         nettoyages tels que la suppression de colonnes et de lignes inutiles, la reclassification des points of interest (POI),
-        ou encore l'ajout de colonnes pour une comprehension plus simple du dataset
+        ou encore l'ajout de colonnes pour une compréhension plus simple du dataset
 
         Returns:
             df (pd.DataFrame): DataFrame nettoyé.
@@ -118,18 +118,18 @@ class DataTourismTransformer():
         # On fait un copy pour ne pas modifier le dataframe original
         df = self.df_tourism.copy()
 
-        ### On supprime les données qui sont inutiles pour notre algorithme de décision et dont les champs sont principalement vide. ###
+        ### On supprime les données qui sont inutiles pour notre algorithme de décision et dont les champs sont principalement vides. ###
         df = df.drop(['Periodes_regroupees', 'Covid19_mesures_specifiques', 'Contacts_du_POI', 'Classements_du_POI', 'SIT_diffuseur'], axis=1, errors="ignore")
 
         ### On récupère uniquement les catégories de POI (orignialement noyées dans une url) ###
         df["Categories_de_POI"] = df["Categories_de_POI"].str.split('/').str[-1]
         df["Categories_de_POI"] = df["Categories_de_POI"].str.split('#').str[-1]
 
-        ### Ici, seules les données sur le code postale, la catégorie du POI ainsi que le nom du POI sont important 
-        # pour l'algorithme, c'est pour cela que nous enlevont les ligne avec des case vides sur ces features ###
+        ### Ici, seules les données sur le code postal, la catégorie du POI ainsi que le nom du POI sont importants
+        # pour l'algorithme, c'est pour cela que nous enlevons les lignes avec des cases vides sur ces features ###
         df = df.dropna(subset=["Nom_du_POI", "Categories_de_POI", 'Code_postal_et_commune'])
 
-        ### La colonne Code postale et commune comporte trois information que nous allon répartire dans trois colonne différente pour plus 
+        ### Les colonnes Code postal et commune comportent trois informations que nous allons répartir dans trois colonnes différentes pour plus 
         # de clarté. Nous pouvons extraire le code postal, le numéro du département ainsi que le nom de la commune ###
 
         col_index = df.columns.get_loc("Code_postal_et_commune")
@@ -144,17 +144,17 @@ class DataTourismTransformer():
 
         df.drop(columns=["Code_postal_et_commune"], inplace=True)
 
-        # On insère les colonne créées
+        # On insère les colonnes créées
         df.insert(col_index, "Département", df_temp["Département"])
         df.insert(col_index + 1, "code_postal", df_temp["code_postal"])
 
         ### Passage des dates en format datetime ###
         df["Date_de_mise_a_jour"] = pd.to_datetime(df["Date_de_mise_a_jour"])
 
-        ### On supprime les catégorie de POI qui ne représente pas vraiment des destinations touristiques selon une liste "cat_to_keep" ###
+        ### On supprime les catégories de POI qui ne représentent pas vraiment des destinations touristiques selon une liste "cat_to_keep" ###
         df = df[df["Categories_de_POI"].isin(self.cat_to_keep)].copy()
 
-        ###  On redéfinit les catégorie de POI avec des catégorie plus globale ###
+        ###  On redéfinit les catégories de POI avec des catégories plus globales ###
         def find_category(cat):
             """ 
             Fonction permettant de trouver la catégorie dans laquelle la sous-catégorie de POI est contenue
@@ -166,7 +166,7 @@ class DataTourismTransformer():
 
         df.insert(3, 'Categorie_simplifiee', df["Categories_de_POI"].apply(find_category)) 
 
-        ### Suppression des odublons en fonction du nombre de nan dans leurs colonnes ###
+        ### Suppression des doublons en fonction du nombre de nan dans leurs colonnes ###
         # On compte le nombre de nan dans une ligne
         df["nb_nan"] = df.isna().sum(axis=1)
         # On trie par nombre de nan
@@ -178,12 +178,12 @@ class DataTourismTransformer():
         # On réindexe 
         df = df.reset_index(drop=True)
 
-        ### On récupère un cléf primaire pour la table a partir de l'URI id du POI ###
+        ### On récupère une clé primaire pour la table a partir de l'URI id du POI ###
         df.insert(0, 'ID', df["URI_ID_du_POI"].str.split('/').str[-1])
         df = df.dropna(subset=["ID"])
 
 
-        ### On convertit les code postaux en floatant ###
+        ### On convertit les codes postaux en floatant ###
         df['code_postal'] = df['code_postal'].astype(float)
 
         self.df_cluster = self.df_cluster.drop_duplicates(subset="code_postal", keep="first")
