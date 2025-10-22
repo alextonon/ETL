@@ -143,7 +143,7 @@ def pipeline_datatourisme(df_town, bypass_extracts):
     return df_datatourisme_cleaned
 
 if __name__ == "__main__":
-    # Time taken for ETL Pipeline: 371.25 seconds
+    # Time taken for ETL Pipeline: 390 seconds
     import time
     start_time = time.time()
     BYPASS_EXTRACTS = False  # Set to True to skip extraction and use local files
