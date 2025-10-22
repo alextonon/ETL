@@ -229,18 +229,44 @@ class AttendanceTransformer() :
         }, inplace=True)
 
         # Réorganisation des colonnes : code_cluster en premier
-        ordered_cols = ['code_cluster'] + [col for col in df_affluences_cluster.columns if col != 'code_cluster']
-        df_affluences_cluster = df_affluences_cluster[ordered_cols]
+        df_affluences_cluster["time_period"] = df_affluences_cluster["time_period"].astype(str).str[-2:]
+        df_affluences_cluster.rename(columns={"time_period": "mois"}, inplace=True)
 
-        df_affluences_cluster["time_period"] = df_affluences_cluster["time_period"].astype(str).str[:2]
-        df_affluences_cluster["time_period"].rename("Mois", inplace=True)
+        ordered_cols = ['code_cluster', 'mois'] + [col for col in df_affluences_cluster.columns if col not in ['code_cluster', 'mois']]
+
+        df_affluences_cluster = df_affluences_cluster[ordered_cols]
+        df_affluences_cluster.sort_values(by=["code_cluster", "mois"], inplace=True)
 
         # Vérifie s’il reste des lignes sans cluster
         n_missing = df_affluences_cluster['code_cluster'].isna().sum()
         if n_missing > 0:
             print(f"Attention : {n_missing} communes sans code_cluster dans df_affluences_cluster.")
 
-        return df_affluences_cluster
+
+        #--On crée un pivot du dtaframe d'affluence, afin d'obtenir un dataframe avec
+        #--une ligne par cluster et par mois, et dont les colonnes contiennent les informations sur le nombre de 
+        #--de nuitées et la capacité par type d'hébergement
+
+        affluence_pivot = df_affluences_cluster.pivot_table(
+            index=['code_cluster', 'mois'],        # chaque ligne = un cluster et un mois
+            columns='id_activity',                 # id_activity devient des colonnes
+            values=['nb_nights_zone', 'capacity_zone'],
+            aggfunc='sum',                         
+            fill_value=0  
+        ).reset_index()                         
+
+        affluence_pivot.columns = [
+            'code_cluster', 'mois',
+            'nb_nights_camping', 'nb_nights_hotel',
+            'capacity_camping', 'capacity_hotel'
+        ]
+
+        df_affluence_pivot = pd.DataFrame(affluence_pivot)
+
+        df_affluence_pivot.sort_values(by=["code_cluster", "mois"], inplace=True)
+
+        
+        return df_affluence_pivot
 
 if __name__ == "__main__" :
     Transformer = AttendanceTransformer()

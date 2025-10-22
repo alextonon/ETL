@@ -22,37 +22,9 @@ from transform.transform_communes import TownTransformer
 from transform.transform_meteo import TransformMeteo
 from transform.transform_data_tourisme import DataTourismTransformer
 
-from load.load_data import get_connection_string, load_to_database_affluence, load_to_database_clusters, load_to_database_meteo, test_database_connection 
+from load.load_data import get_connection_string, load_to_database_affluence, load_to_database_clusters, load_to_database_meteo, load_to_database_datatourism, test_database_connection, create_view
 #from load.load_data import verify_data, run_sample_queries
 
-def pipeline_meteo(df_cluster, bypass_extracts):
-    """Run the Meteo ETL pipeline"""
-    print("--- Starting METEO ETL Pipeline...")
-    print("=" * 50)
-
-    #### -- Meteo Extract 
-
-    if not bypass_extracts:
-        meteo_extractor = MeteoExtractor()
-        df_meteo = meteo_extractor.extract_data()
-
-        df_meteo.to_csv("data/data_extracted/df_meteo_brut.csv")
-
-    else:
-        df_meteo = pd.read_csv("data/data_extracted/df_meteo_brut.csv")
-
-    #### -- Meteo Transform :
-
-    transformer = TransformMeteo()
-
-    df_mensuel = transformer.process_data(df_meteo)
-
-    df_cluster_meteo = transformer.link_clusters_with_meteo(df_cluster, df_mensuel) 
-    df_cluster_meteo.to_csv("data/data_transformed/cluster_meteo.csv", index=False) # Stockage table finale
-
-    print("✅ Meteo ETL Pipeline completed.")
-
-    return df_cluster_meteo
 
 def pipeline_town(bypass_extracts):
     """Run the Town ETL pipeline"""
@@ -72,13 +44,58 @@ def pipeline_town(bypass_extracts):
     #### -- Town Transform
     Town_Transformer = TownTransformer(df_town)
     df_towncleaned = Town_Transformer.clean_data()
-    df_towncleaned.to_csv("data/data_transformed/communes_france_cleaned.csv", index=False) # Stockage intermédiaire
+    #df_towncleaned.to_csv("data/data_transformed/communes_france_cleaned.csv", index=False) # Stockage intermédiaire
 
     cluster_mapping = Town_Transformer.create_cluster_mapping() 
-    cluster_mapping.to_csv("data/data_transformed/cluster_mapping.csv", index=False) # Stockage table finale
+    #cluster_mapping.to_csv("data/data_transformed/cluster_mapping.csv", index=False) # Stockage table finale
 
-    print("✅ Town ETL Pipeline completed.")
+
+    #### -- Town Load
+    if test_database_connection():
+        print("\nDatabase connection OK. Ready for data loading!")
+        load_to_database_clusters(cluster_mapping)
+    else:
+        print("Fix database connection before testing loading functions")
+        print("✅ Clusters ETL Pipeline completed.")
+    
+
     return df_towncleaned, cluster_mapping
+
+
+
+def pipeline_meteo(df_cluster, bypass_extracts):
+    """Run the Meteo ETL pipeline"""
+    print("--- Starting METEO ETL Pipeline...")
+    print("=" * 50)
+
+    #### -- Meteo Extract 
+    if not bypass_extracts:
+        meteo_extractor = MeteoExtractor()
+        df_meteo = meteo_extractor.extract_data()
+
+        df_meteo.to_csv("data/data_extracted/df_meteo_brut.csv")
+
+    else:
+        df_meteo = pd.read_csv("data/data_extracted/df_meteo_brut.csv")
+
+    #### -- Meteo Transform :
+    transformer = TransformMeteo()
+    df_mensuel = transformer.process_data(df_meteo)
+    df_cluster_meteo = transformer.link_clusters_with_meteo(df_cluster, df_mensuel) 
+    #df_cluster_meteo.to_csv("data/data_transformed/cluster_meteo.csv", index=False) # Stockage table finale
+
+    #### -- Meteo Load :
+    if test_database_connection():
+        print("\nDatabase connection OK. Ready for data loading!")
+        load_to_database_meteo(df_cluster_meteo)
+        print("✅ Meteo ETL Pipeline completed.")
+    else:
+        print("Fix database connection before testing loading functions")
+        
+    
+
+    
+
 
 def pipeline_affluences(df_towncleaned, bypass_extracts):
     """Run the Affluences ETL pipeline"""
@@ -110,9 +127,16 @@ def pipeline_affluences(df_towncleaned, bypass_extracts):
 
     df_affluence_cluster = Attendance_Transformer.affluences_cluster(df_affluences, df_towncleaned)
 
-    df_affluence_cluster.to_csv("data/data_transformed/cluster_affluence.csv", index = False) 
-    print("✅ Affluence ETL Pipeline completed.")
-    return df_affluence_cluster
+    #df_affluence_cluster.to_csv("data/data_transformed/cluster_affluence.csv", index = False) 
+
+    #### -- Affluence Load
+    if test_database_connection():
+        print("\nDatabase connection OK. Ready for data loading!")
+        load_to_database_affluence(df_affluence_cluster)
+        print("✅ Affluence ETL Pipeline completed.")
+    else:
+        print("Fix database connection before testing loading functions")
+        
 
 def pipeline_datatourisme(df_town, bypass_extracts):
     """Run the DataTourism ETL pipeline"""
@@ -135,15 +159,21 @@ def pipeline_datatourisme(df_town, bypass_extracts):
     DataTourism_Transformer = DataTourismTransformer(df_datatourisme, df_town)
     df_datatourisme_cleaned, df_score_POI_cluster = DataTourism_Transformer.clean_data()
 
-    df_datatourisme_cleaned.to_csv("data/data_transformed/datatourism_cleaned.csv", index=False) 
-    
-    df_score_POI_cluster.to_csv('data/data_transformed/datatourism_score_cluster.csv')
+    #df_datatourisme_cleaned.to_csv("data/data_transformed/datatourism_cleaned.csv", index=False) 
+    #df_score_POI_cluster.to_csv('data/data_transformed/datatourism_score_cluster.csv')
 
-    print("✅ DataTourism ETL Pipeline completed.")
-    return df_datatourisme_cleaned
+    #### -- Datatourism Load
+    if test_database_connection():
+        print("\nDatabase connection OK. Ready for data loading!")
+        load_to_database_datatourism(df_datatourisme_cleaned, df_score_POI_cluster)
+        print("✅ Datatourism ETL Pipeline completed.")
+    else:
+        print("Fix database connection before testing loading functions")
+        
+
 
 if __name__ == "__main__":
-    # Time taken for ETL Pipeline: 390 seconds
+    # Time taken for ETL Pipeline: ........ seconds
     import time
     start_time = time.time()
     BYPASS_EXTRACTS = False  # Set to True to skip extraction and use local files
@@ -161,6 +191,10 @@ if __name__ == "__main__":
     print("=" * 50)
 
     df_datatourisme = pipeline_datatourisme(df_town, BYPASS_EXTRACTS)
+
+    print("=" * 50)
+
+    create_view()
 
 
     print("=" * 50)

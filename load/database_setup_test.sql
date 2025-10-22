@@ -2,19 +2,16 @@
 -- Run le fichier une fois qu'on est sûr (et vérifier avec quel compte les tables sont créées)
 
 -- Drop tables if they exist (for clean restart)
+DROP VIEW IF EXISTS dataconsolidee;
+
 DROP TABLE IF EXISTS meteo;
 DROP TABLE IF EXISTS affluence;
 DROP TABLE IF EXISTS clusters;
 DROP TABLE IF EXISTS datatourisme;
 DROP TABLE IF EXISTS scoretourisme;
 
-DROP VIEW IF EXISTS dataconsolidee;
-DROP VIEW IF EXISTS affluence_pivot;
 
-
-
-
--- Table communes : contient les informations relatives à chaque commune française
+-- Table clusters : contient les informations relatives à chaque cluster 
 
 CREATE TABLE clusters (
     code_cluster INT PRIMARY KEY,
@@ -30,12 +27,12 @@ CREATE TABLE clusters (
 -- Table affluences : contient les données relatives à l'affluence touristique de chaque zone d'emploi du territoire français
 CREATE TABLE affluence (
     code_cluster INT,
-    id_activity VARCHAR(10),
-    activity_type VARCHAR(100),
     mois INT,
-    capacity_zone FLOAT,
-    nb_nights_zone FLOAT,
-    PRIMARY KEY (code_cluster, id_activity, mois)
+    nb_nights_camping FLOAT,
+    nb_nights_hotel FLOAT,
+    capacity_camping FLOAT,
+    capacity_hotel FLOAT,
+    PRIMARY KEY (code_cluster, mois)
 );
 
 -- Table meteo : contient les données relatives à la météo de chaque zone d'emploi du territoire français
@@ -67,24 +64,23 @@ CREATE TABLE datatourisme (
 
 CREATE TABLE scoretourisme (
     code_cluster INT,
-    mois INT, 
-    score_logement INT, 
-    score_tourism_center INT,
-    score_nourriture INT,
-    score_event INT,
-    
-    -- --transport,
-    --         "Activités": activités,
-    --         "Sport": Sport,
-    --         "Sport_hiver": Sport_hiver,
-    --         "Balade": Balade,
-    --         "Park": Park,
-    --         "Magasin": Magasin,
-    --         "Culture": Culture,
-    --         "Sortie_soir": Sortie_soir,
-    --     }
-    PRIMARY KEY (code_cluster, mois)
+    activités INT,
+    balades INT,
+    centres_de_tourisme INT,
+    culture INT,
+    evenements INT,
+    logements INT,
+    magasins INT,
+    nourriture INT,
+    parcs INT,
+    sorties_soir INT,
+    sports INT,
+    sports_hiver INT,
+    transports INT,
+    PRIMARY KEY (code_cluster)
 );
+
+
 
 -- Verify tables were created
 \dt
