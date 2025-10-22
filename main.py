@@ -152,11 +152,11 @@ if __name__ == "__main__":
 
     print("=" * 50)
 
-    df_meteo = pipeline_meteo(df_cluster, BYPASS_EXTRACTS)
+    #df_meteo = pipeline_meteo(df_cluster, BYPASS_EXTRACTS)
 
     print("=" * 50)
     
-    df_affluence = pipeline_affluences(df_town, BYPASS_EXTRACTS)
+    #df_affluence = pipeline_affluences(df_town, BYPASS_EXTRACTS)
 
     print("=" * 50)
 
