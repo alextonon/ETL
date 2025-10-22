@@ -16,7 +16,6 @@ DROP TABLE IF EXISTS scoretourisme;
 CREATE TABLE clusters (
     code_cluster INT PRIMARY KEY,
     code_insee_centre_zone_emploi VARCHAR(5),
-    nom_standard VARCHAR(100),
     latitude_centre FLOAT,
     longitude_centre FLOAT,
     ville_principale TEXT
@@ -49,17 +48,17 @@ CREATE TABLE meteo (
 
 -- Table tourisme : contient les informations relatives aux points d'intérêt du territoire français
 CREATE TABLE datatourisme (
-   ID TEXT,
+   id TEXT,
    code_cluster INT,
-   Nom_du_POI TEXT,
-   Categories_de_POI TEXT,
-   Categorie_simplifiee TEXT,
-   Latitude FLOAT,
-   Longitude FLOAT,
-   Date_de_mise_a_jour DATE,
-   Description TEXT,
-   URL_du_POI TEXT,
-   PRIMARY KEY (ID)
+   nom_du_poi TEXT,
+   categories_de_poi TEXT,
+   categorie_simplifiee TEXT,
+   latitude FLOAT,
+   longitude FLOAT,
+   date_de_mise_a_jour DATE,
+   description TEXT,
+   uri_id_du_poi TEXT,
+   PRIMARY KEY (id)
 );
 
 CREATE TABLE scoretourisme (
@@ -79,7 +78,6 @@ CREATE TABLE scoretourisme (
     transports INT,
     PRIMARY KEY (code_cluster)
 );
-
 
 
 -- Verify tables were created

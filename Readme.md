@@ -80,7 +80,7 @@ Ce dossier contient les différents fichiers relatifs à la phase d'extraction d
 
 Ce dossier contient deux fichiers : 
 
-- Le fichier `database_setup_test.sql` contient les instructions SQL nécessaires à la création des différentes tables qui stockeront les données utiles à notre projet.
+- Le fichier `database_setup.sql` contient les instructions SQL nécessaires à la création des différentes tables qui stockeront les données utiles à notre projet.
 
 - Le fichier `load_data.py` implémente les fonctions relatives à la phase de chargement des différents jeux de données utiles à notre projet. On remplit ainsi les différentes tables SQL avec les données issues des phases d'extraction et de transformation.
 

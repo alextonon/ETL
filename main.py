@@ -23,7 +23,7 @@ from transform.transform_meteo import TransformMeteo
 from transform.transform_data_tourisme import DataTourismTransformer
 
 from load.load_data import get_connection_string, load_to_database_affluence, load_to_database_clusters, load_to_database_meteo, load_to_database_datatourism, test_database_connection, create_view
-#from load.load_data import verify_data, run_sample_queries
+from load.load_data import create_view, verify_data, run_sample_queries
 
 
 def pipeline_town(bypass_extracts):
@@ -195,6 +195,10 @@ if __name__ == "__main__":
     print("=" * 50)
 
     create_view()
+
+    verify_data()
+
+    run_sample_queries()
 
 
     print("=" * 50)

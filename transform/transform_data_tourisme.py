@@ -218,8 +218,10 @@ class DataTourismTransformer():
 
         pivot_df = df.groupby(["code_cluster", "Categorie_simplifiee"]).size().unstack(fill_value=0)
         score_cluster_POI_df = pivot_df.rename_axis(columns=None).reset_index() 
-        
 
+        ##Renommage des colonnes : enlever les majuscules pour faciliter les requêtes SQL
+        df.columns = [col.lower() for col in df.columns]
+        
         return df, score_cluster_POI_df
 
 
