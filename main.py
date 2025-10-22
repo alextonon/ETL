@@ -176,17 +176,17 @@ if __name__ == "__main__":
     # Time taken for ETL Pipeline: ........ seconds
     import time
     start_time = time.time()
-    BYPASS_EXTRACTS = False  # Set to True to skip extraction and use local files
+    BYPASS_EXTRACTS = True  # Set to True to skip extraction and use local files
 
     df_town, df_cluster = pipeline_town(BYPASS_EXTRACTS)
 
     print("=" * 50)
 
-    #df_meteo = pipeline_meteo(df_cluster, BYPASS_EXTRACTS)
+    df_meteo = pipeline_meteo(df_cluster, BYPASS_EXTRACTS)
 
     print("=" * 50)
     
-    #df_affluence = pipeline_affluences(df_town, BYPASS_EXTRACTS)
+    df_affluence = pipeline_affluences(df_town, BYPASS_EXTRACTS)
 
     print("=" * 50)
 
@@ -199,7 +199,6 @@ if __name__ == "__main__":
     verify_data()
 
     run_sample_queries()
-
 
     print("=" * 50)
     print("time taken for ETL Pipeline: %s seconds" % (time.time() - start_time))

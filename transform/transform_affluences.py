@@ -229,7 +229,7 @@ class AttendanceTransformer() :
         }, inplace=True)
 
         # Réorganisation des colonnes : code_cluster en premier
-        df_affluences_cluster["time_period"] = df_affluences_cluster["time_period"].astype(str).str[-2:]
+        df_affluences_cluster["time_period"] = df_affluences_cluster["time_period"].astype(str).str[-2:].astype(int)
         df_affluences_cluster.rename(columns={"time_period": "mois"}, inplace=True)
 
         ordered_cols = ['code_cluster', 'mois'] + [col for col in df_affluences_cluster.columns if col not in ['code_cluster', 'mois']]
