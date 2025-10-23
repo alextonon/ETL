@@ -74,7 +74,9 @@ if __name__ == '__main__' :
     DataTourism_Extractor = DataTourismExtractor()
     df_tourism = DataTourism_Extractor.extract_data()
 
-    print('### --- DONNEES EXTRAITES DATATOURISME --- ###\n', df_tourism.head())
+    print('### --- DONNEES EXTRAITES DATATOURISME --- ###\n')
+    print(df_tourism.head())
+    
     df_tourism.to_csv("data/data_extracted/df_datatourisme.csv", index=False)
 
     

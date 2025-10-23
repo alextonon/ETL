@@ -152,8 +152,8 @@ if __name__ == "__main__":
     # --- ATTENTION : il faut avoir chargé une première fois le fichier 'df_meteo_brut.csv'.
     # -- Le fichier se télécharge en exécutant extract.extract_meteo.py ou main.py
 
-    print("\n### --- DONNEES FINALES TRANSFORMEES : df_cluster_meteo --- ###\n")
-    df_meteo_brut = pd.read_csv("data/data_extracted/df_meteo_brut.csv", sep=';')
+    print("\n### --- DONNEES FINALES TRANSFORMEES : df_cluster_meteo --- ###")
+    df_meteo_brut = pd.read_csv("data/data_extracted/df_meteo_brut.csv", sep=',')
     print(df_meteo_brut.head())
 
     df_mensuel = transformer.process_data(df_meteo_brut)

@@ -41,6 +41,7 @@ class MeteoExtractor:
 
             # Étape intermédiaire : requête HTTP pour vérifier le statut
             response = requests.get(data_source)
+            response.raise_for_status()  # Raise an error for bad status codes
 
             if response.status_code == 200:
                 print("--- ✅ HTTP 200 OK: Data successfully retrieved.")
@@ -63,9 +64,9 @@ if __name__ == '__main__' :
 
     df_meteo = Extractor.extract_data()
 
-
     print('### --- DONNEES EXTRAITES METEO --- ###\n', df_meteo.head())
-    df_meteo.to_csv("data/data_extracted/df_meteo_brut.csv")
+
+    df_meteo.to_csv("data/data_extracted/df_meteo_brut.csv", index = False)
 
   
     
