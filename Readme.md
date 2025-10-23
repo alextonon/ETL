@@ -64,20 +64,18 @@ La phase de chargement des données au sein de tables SQL nécessite une connexi
 Ensuite, l'exécution de la pipeline s'effectue via le fichier `main.py`, que l'on exécute en mettant la variable `BYPASS_EXTRACTS = False` au premier run (la pipeline stocke les tables intermédiaires en .csv dans le repository, ce qui évite de relancer toutes les requêtes API pour les runs suivants, mais il faut les faire la première fois).
 
 Astuce SQL pour visualisation des tables :
-Effectuer la commande '\x' pour visualiser les tables avec de nombreuses colonnes.
+Effectuer la commande '\x' dans la database SQL pour un affichage en format étendu pour mieux visualiser les tables avec de nombreuses colonnes.
 
+Chaque fichier .py peut être testé individuellement, il faut cependant respecter l'ordre de la pipeline car les fichiers .py dans `transform` dépendent des .csv téléchargés dans le dossier `data_extracted`, et le fichier load_data.py dans `load` dépendent des .csv téléchargés dans le dossier `data_transformed`
 
 
 ## Description des différents dossiers
 
-Chaque fichier .py peut être testé : 
--- dossier extr
-
-### Dossier data :
+### Dossier `data` :
 
 Ce dossier contient des enregistrements au format csv des différents jeux de données utilisés, à différentes étapes de la pipeline. Dans le dossier `data_extracted`, on trouve l'état des jeux de données après la phase d'extraction, et dans le dossier `data_transformed`, on trouve l'état des jeux de données après la phase de transformation. Ces fichiers ont principalement été utilisés à des fins de débuggage, pour ne pas avoir à relancer l'intégralité de la pipeline à chaque fois que l'on veut fixer un problème. On pourra également les utiliser si la phase d'extraction prend trop de temps, mais en pratique, on ne devrait pas en avoir besoin puisqu'en lançant l'intégralité de la pipeline la phase de chargement stocke les données pertinentes dans des tables PostGreSQL.
 
-### Dossier extract :
+### Dossier `extract` :
 
 Ce dossier contient les différents fichiers relatifs à la phase d'extraction des jeux de données :
 
@@ -90,7 +88,7 @@ Ce dossier contient les différents fichiers relatifs à la phase d'extraction d
 - Le fichier `extract_meteo.py` implémente les fonctions relatives à l'extraction de données relatives à la météo des différents départements français, depuis un jeu de données de Météo France (Source : https://public.opendatasoft.com/explore/assets/donnees-synop-essentielles-omm/?flg=fr-fr).
 
 
-### Dossier load :
+### Dossier `load` :
 
 Ce dossier contient deux fichiers : 
 
@@ -99,7 +97,7 @@ Ce dossier contient deux fichiers :
 - Le fichier `load_data.py` implémente les fonctions relatives à la phase de chargement des différents jeux de données utiles à notre projet. On remplit ainsi les différentes tables SQL avec les données issues des phases d'extraction et de transformation.
 
 
-### Dossier transform :
+### Dossier `transform` :
 
 Ce dossier contient les différents fichiers relatifs à la phase de transformation des jeux de données :
 
