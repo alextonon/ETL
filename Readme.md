@@ -87,6 +87,8 @@ Ce dossier contient les différents fichiers relatifs à la phase d'extraction d
 
 - Le fichier `extract_meteo.py` implémente les fonctions relatives à l'extraction de données relatives à la météo des différents départements français, depuis un jeu de données de Météo France (Source : https://public.opendatasoft.com/explore/assets/donnees-synop-essentielles-omm/?flg=fr-fr).
 
+Note : en cas de problème avec l'appel à l'API météo, nous vous inviton à télécharger le csv depuis votre navigateur à cette addresse : https://public.opendatasoft.com/api/explore/v2.1/catalog/datasets/donnees-synop-essentielles-omm/exports/csv?select=date,latitude,longitude,nom_dept,code_dep,codegeo,pres,nom,tc,rr3,rr24,raf10&lang=fr&timezone=Europe%2FParis&use_labels=true&delimiter=%3B
+
 
 ### Dossier `load` :
 

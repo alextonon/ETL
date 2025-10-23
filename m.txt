@@ -1,1 +1,0 @@
-https://public.opendatasoft.com/api/explore/v2.1/catalog/datasets/donnees-synop-essentielles-omm/exports/csv?select=date,latitude,longitude,nom_dept,code_dep,codegeo,pres,nom,tc,rr3,rr24,raf10&lang=fr&timezone=Europe%2FParis&use_labels=true&delimiter=%3B
