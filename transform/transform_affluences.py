@@ -154,20 +154,24 @@ class AttendanceTransformer() :
 
     def creation_dataframe_affluences(self, df_capacite, df_nb_nuitees) :
         """
-        Création du dataframe d'affluences qui servira à l'algorithme global Voyage Voyage. Le but est 
-        de fournir, pour chaque cluster spatial (cf  transform_clusterizer.py), un nombre de 
-        touristes hébergés dans chaque type d'hébergement, pour chaque mois de l'année.
-        Le but de cette démarche sera de déterminer dans quelles zones il y a le plus et le moins de
-        touristes à chaque période de l'année.
+        Création du dataframe d'affluences estimant le nombre de touristes présents chaque mois
+        dans chaque commune, pour chaque type d'hébergement.
         Pour ce faire, on va combiner les deux dataframes de capacité d'hébergement (précis à 
         l'échelle de la commune) et de nombre de nuitées (précis à l'échelle du département), en 
         supposant que chaque mois, les nuitées au sein d'un département sont réparties au sein des
         communes proportionnellement à leur capacité d'hébergement :
             Nb_nuitees_ville = Nb_nuitees_dep * Cap_ville / Cap_dep
-        On va ensuite attribuer chaque commune au cluster auquel elle appartient,
-        et sommer les nombres de touristes obtenus au sein de chaque cluster, chaque mois.
         Il faudra ensuite prendre garde à l'analyse que l'on peut en faire, car les clusters ne sont
         pas tous aussi densément peuplés.
+        Args:
+            df_capacite (pd.DataFrame): DataFrame contenant les données relatives à la capacité d'hébergement
+            de chaque commune pour chaque type d'hébergement
+            df_nb_nuitees (pd.DataFrame): DataFrame contenant les données relatives à la fréquentation
+            de chaque département pour chaque type d'hébergement, chaque mois de l'année
+        Returns:
+            df_affluences (pd.DataFrame): DataFrame final contenant, pour chaque commune, chaque
+            type d'hébergement et chaque mois de l'année, la valeur estimée du nombre de nuitées
+            passées par des touristes dans la commune.
         """
 
         df_capacite['capacity_dept'] = df_capacite.groupby(['dept_code','id_activity'])['capacity'].transform('sum')

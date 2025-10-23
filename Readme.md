@@ -49,17 +49,19 @@ La phase de chargement des données au sein de tables SQL nécessite une connexi
 
 ----> insérer ses identifiants de connexion dans un fichier .env localisé à la racine du projet, sous cette forme :
 
-                        ```
-                        DB_USERNAME= 'username'
-                        DB_PASSWORD= 'password'
-                        DB_HOST= 'localhost'
-                        DB_PORT='5432'
-                        DB_NAME= 'db_voyagevoyage'
-                        ```
+```
+                                DB_USERNAME= 'username'
+                                DB_PASSWORD= 'password'
+                                DB_HOST= 'localhost'
+                                DB_PORT='5432'
+                                DB_NAME= 'db_voyagevoyage'
+```
 
 ----> créer une database db_voyagevoyage dans PostGreSQL.
 
 ----> exécuter le script /load/database_setup.sql
+
+Ensuite, l'exécution de la pipeline s'effectue via le fichier `main.py`, que l'on exécute en mettant la variable `BYPASS_EXTRACTS = False` au premier run (la pipeline stocke les tables intermédiaires en .csv dans le repository, ce qui évite de relancer toutes les requêtes API pour les runs suivants, mais il faut les faire la première fois).
 
 ## Description des différents dossiers
 

@@ -176,7 +176,7 @@ if __name__ == "__main__":
     # Time taken for ETL Pipeline: ........ seconds
     import time
     start_time = time.time()
-    BYPASS_EXTRACTS = True  # Set to True to skip extraction and use local files
+    BYPASS_EXTRACTS = False  # Set to True to skip extraction and use local files
 
     df_town, df_cluster = pipeline_town(BYPASS_EXTRACTS)
 

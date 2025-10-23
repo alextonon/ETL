@@ -1,5 +1,5 @@
 -- Setup Database Voyage Voyage
--- Run le fichier une fois qu'on est sûr (et vérifier avec quel compte les tables sont créées)
+-- Se référer au README.md avant de run ce fichier
 
 -- Drop tables if they exist (for clean restart)
 DROP VIEW IF EXISTS dataconsolidee;
@@ -61,6 +61,8 @@ CREATE TABLE datatourisme (
    PRIMARY KEY (id)
 );
 
+-- Table scoretourisme : contient pour chaque cluster, le compte de POI de chaque catégorie,
+-- à partir des données issues de la table datatourisme
 CREATE TABLE scoretourisme (
     code_cluster INT,
     activités INT,

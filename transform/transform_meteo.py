@@ -10,6 +10,16 @@ class TransformMeteo:
         self.df_cluster_meteo = None
     
     def process_data(self, df_meteo_brut):
+        """
+        Fonction qui transforme les données météorologiques du projet, en ne gardant que les colonnes
+        pertinentes, et en agrégeant les données par commune (on moyenne chaque grandeur sur les 10
+        années à disposition, pour chaque station météo).
+        Args:
+            df_meteo_brut (pd.DataFrame): DataFrame contenant les données météorologiques brutes
+        Returns:
+            df_mensuel (pd.DataFrame): DataFrame nettoyé.
+        """
+
         print("--- Starting brute data cleaning for Meteo...")
         # Logic to process the extracted data
         self.df = df_meteo_brut.copy()
@@ -53,7 +63,14 @@ class TransformMeteo:
 
     def find_nearest_station(self, long, lat, df_meteo):
         """
-        Version vectorisée pour trouver la station météo la plus proche.
+        Version vectorisée pour trouver la station météo la plus proche d'un point connu.
+        Args:
+            long (float): Longitude du point concerné
+            lat (float): Latitude du point concerné
+            df_meteo (pd.DataFrame): DataFrame contenant les données météorologiques d'intérêt
+        Returns:
+            df.loc[nearest_idx, "communes (code)"] : code de la commune contenant la station météo
+            la plus proche du point concerné.
         """
         df = df_meteo.drop_duplicates(subset=["communes (code)"])
         distances = np.sqrt((df["Longitude"] - long)**2 + (df["Latitude"] - lat)**2)
@@ -62,7 +79,15 @@ class TransformMeteo:
 
     def link_clusters_with_meteo(self, df_cluster_table, df_mensuel=None):
         """
+        Fonction faisant le lien entre les données météorologiques et les clusters spatiaux issus
+        de la partie transform_communes.
+        Args:
+            df_cluster_table (pd.DataFrame): Informations sur les clusters spatiaux.
+            df_mensuel (pd.DataFrame): DataFrame contenant les données météorologiques de chaque station.
         Si df_mensuel est fourni, on l'utilise. Sinon, on utilise self.df_mensuel (dataset intermédiaire possible).
+        Returns:
+            df_cluster_meteo (pd.DataFrame): DataFrame final, contenant les données météorologiques
+            rassemblées par cluster.
         """
         print("--- Starting linking clusters with meteorological data...")
         df_m = df_mensuel if df_mensuel is not None else self.df_mensuel

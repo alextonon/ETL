@@ -8,6 +8,17 @@ class MeteoExtractor:
         pass
 
     def extract_data(self, local=False):
+        """
+        Fonction qui extrait les données météorologiques pertinentes concernant la France
+        métropolitaine sur les 10 dernières années, depuis l'API OpenDataSoft.
+        Args:
+            local (bool): Booléen qui précise si l'extraction doit être effectuée depuis le fichier
+        enregistré en local data/donnees-synop-essentielles-omm.csv, ou si la requête à l'API doit
+        être effectuée.
+        Returns:
+            df (pd.DataFrame): DataFrame résultant de l'extraction des données météo.
+        """
+
         # Logic to return the raw dataset
 
         # On utilise la fonction export, en ajoutant une selection sur les variables qui nous interessent  

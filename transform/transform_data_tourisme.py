@@ -100,9 +100,9 @@ class DataTourismTransformer():
 
     def clean_data(self):
         """
-        Fonction permettant de nettoyer les données brut du dataset DataTourisme. Cette fonction réalise plusieurs
+        Fonction permettant de nettoyer les données brutes du dataset DataTourisme. Cette fonction réalise plusieurs
         nettoyages tels que la suppression de colonnes et de lignes inutiles, la reclassification des points of interest (POI),
-        ou encore l'ajout de colonnes pour une compréhension plus simple du dataset
+        ou encore l'ajout de colonnes pour une compréhension plus simple du dataset.
 
         Returns:
             df (pd.DataFrame): DataFrame nettoyé.

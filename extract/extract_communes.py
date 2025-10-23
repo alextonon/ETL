@@ -2,6 +2,14 @@ import pandas as pd
 
 class TownExtractor():
     def extract_data(self, list_chemin):
+        """
+        Fonction qui extrait les données issues de fichiers csv contenant des informations 
+        administratives sur les communes de France.
+        Args:
+            list_chemin (list): Liste de paths correspondant aux fichiers csv à aller chercher
+        Returns:
+            df (pd.DataFrame): DataFrame final contenant les données des différents csv concaténées.
+        """
 
         print("--- Reading communes data from csv...")
 

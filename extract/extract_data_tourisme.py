@@ -14,7 +14,12 @@ class DataTourismExtractor():
 
     def extract_data(self):
         """Fonction d'appel à l'API du site du gouvernement afin de telecharger les fichiers CSV de DataTourisme sur chaque région 
-        et de les stocker"""
+        et de les stocker
+        Args:
+            None
+        Returns:
+            df (pd.DataFrame) : DataFrame contenant les informations relatives à tous les POI de France.
+        """
 
         api_url = "https://www.data.gouv.fr/api/2/datasets/5b598be088ee387c0c353714/resources/?page=1&page_size=50"
 
