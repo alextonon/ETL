@@ -63,7 +63,15 @@ La phase de chargement des données au sein de tables SQL nécessite une connexi
 
 Ensuite, l'exécution de la pipeline s'effectue via le fichier `main.py`, que l'on exécute en mettant la variable `BYPASS_EXTRACTS = False` au premier run (la pipeline stocke les tables intermédiaires en .csv dans le repository, ce qui évite de relancer toutes les requêtes API pour les runs suivants, mais il faut les faire la première fois).
 
+Astuce SQL pour visualisation des tables :
+Effectuer la commande '\x' pour visualiser les tables avec de nombreuses colonnes.
+
+
+
 ## Description des différents dossiers
+
+Chaque fichier .py peut être testé : 
+-- dossier extr
 
 ### Dossier data :
 

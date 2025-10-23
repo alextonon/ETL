@@ -22,7 +22,7 @@ class TownTransformer() :
                 print("--- ⚠️  Pas de données à nettoyer")
                 return self.df_town
             
-            print("--- Cleaning communes dataset.")
+            print("... Cleaning communes dataset.")
 
             #On ne garde que le 'nom_standard' dans pour la dénomination des communes
             self.df_town.drop(['nom_sans_pronom', 'nom_a', 'nom_de', 'nom_sans_accent','nom_standard_majuscule'], axis=1, inplace=True)
@@ -96,8 +96,12 @@ if __name__ == "__main__":
     df_town = pd.read_csv("data/data_extracted/df_town.csv", sep=",")
     transformer = TownTransformer(df_town)
 
+    print("\n### --- communes_france_cleaned --- ###\n")
     df_cleaned = transformer.clean_data()
     df_cleaned.to_csv("data/data_transformed/communes_france_cleaned.csv", index=False)
+    print(df_cleaned.head(), '\n')
 
+    print("### --- cluster_mapping--- ###\n")
     cluster_mapping = transformer.create_cluster_mapping()
     cluster_mapping.to_csv("data/data_transformed/cluster_mapping.csv", index=False)
+    print(cluster_mapping.head())

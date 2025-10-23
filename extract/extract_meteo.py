@@ -63,6 +63,10 @@ if __name__ == '__main__' :
 
     df_meteo = Extractor.extract_data()
 
+
+    print('### --- DONNEES EXTRAITES METEO --- ###\n', df_meteo.head())
     df_meteo.to_csv("data/data_extracted/df_meteo_brut.csv")
 
-    print(df_meteo.head())
+  
+    
+

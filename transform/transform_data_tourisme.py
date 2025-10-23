@@ -233,7 +233,10 @@ if __name__ == "__main__":
 
     df_dataTourisme, df_score_POI_cluster = tourism_transformer.clean_data()
 
+    print("\n### --- DONNEES FINALES TRANSFORMEES : datatourisme_cleaned --- ###\n")
     df_dataTourisme.to_csv('data/data_transformed/datatourism_cleaned.csv', index = False)
+    print(df_dataTourisme.head(), '\n')
 
+    print("\n### --- DONNEES FINALES TRANSFORMEES : datatourism_score_cluster_cleaned --- ###\n")
     df_score_POI_cluster.to_csv('data/data_transformed/datatourism_score_cluster.csv', index = False)
-    print("Data enregistrée avec succès")
+    print(df_score_POI_cluster.head())

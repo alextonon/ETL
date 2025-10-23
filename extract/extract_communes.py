@@ -29,6 +29,5 @@ if __name__ == "__main__":
     town_extractor = TownExtractor()
     df_town = town_extractor.extract_data(["communes-france-2025.csv"])
 
-    print(df_town.head()) 
-
+    print('### --- DONNEES EXTRAITES COMMUNES --- ###\n', df_town.head())
     df_town.to_csv("data/data_extracted/df_town.csv", index=False)

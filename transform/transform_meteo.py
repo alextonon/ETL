@@ -149,10 +149,18 @@ class TransformMeteo:
 if __name__ == "__main__":
     transformer = TransformMeteo()
 
-    df_meteo_brut = pd.read_csv("data/donnees-synop-essentielles-omm.csv", sep=';')
+    # --- ATTENTION : il faut avoir chargé une première fois le fichier 'df_meteo_brut.csv'.
+    # -- Le fichier se télécharge en exécutant extract.extract_meteo.py ou main.py
+
+    print("\n### --- DONNEES FINALES TRANSFORMEES : df_cluster_meteo --- ###\n")
+    df_meteo_brut = pd.read_csv("data/data_extracted/df_meteo_brut.csv", sep=';')
+    print(df_meteo_brut.head())
 
     df_mensuel = transformer.process_data(df_meteo_brut)
 
     df_cluster = pd.read_csv("data/data_transformed/cluster_mapping.csv")
     df_cluster_meteo = transformer.link_clusters_with_meteo(df_cluster) 
     df_cluster_meteo.to_csv("data/data_transformed/cluster_meteo.csv", index=False)
+
+    print("\n### --- DONNEES FINALES TRANSFORMEES : df_cluster_meteo --- ###\n")
+    print(df_cluster_meteo.head())

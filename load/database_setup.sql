@@ -1,7 +1,7 @@
--- Setup Database Voyage Voyage
--- Se référer au README.md avant de run ce fichier
+-- Setup Database VoyageVoyage
+-- Se référer au Readme.md avant de run ce fichier
 
--- Drop tables if they exist (for clean restart)
+-- Efface la view et les tables déjà présentes dans la database 
 DROP VIEW IF EXISTS dataconsolidee;
 
 DROP TABLE IF EXISTS meteo;
@@ -27,10 +27,10 @@ CREATE TABLE clusters (
 CREATE TABLE affluence (
     code_cluster INT,
     mois INT,
-    nb_nights_camping FLOAT,
-    nb_nights_hotel FLOAT,
     capacity_camping FLOAT,
     capacity_hotel FLOAT,
+    nb_nights_camping FLOAT,
+    nb_nights_hotel FLOAT,
     PRIMARY KEY (code_cluster, mois)
 );
 

@@ -251,21 +251,24 @@ class AttendanceTransformer() :
         #--une ligne par cluster et par mois, et dont les colonnes contiennent les informations sur le nombre de 
         #--de nuitées et la capacité par type d'hébergement
 
+
         affluence_pivot = df_affluences_cluster.pivot_table(
             index=['code_cluster', 'mois'],        # chaque ligne = un cluster et un mois
             columns='id_activity',                 # id_activity devient des colonnes
             values=['nb_nights_zone', 'capacity_zone'],
             aggfunc='sum',                         
             fill_value=0  
-        ).reset_index()                         
+        ).reset_index()     
 
         affluence_pivot.columns = [
             'code_cluster', 'mois',
-            'nb_nights_camping', 'nb_nights_hotel',
-            'capacity_camping', 'capacity_hotel'
+            'capacity_camping', 'capacity_hotel',
+            'nb_nights_camping', 'nb_nights_hotel'
         ]
 
+
         df_affluence_pivot = pd.DataFrame(affluence_pivot)
+
 
         df_affluence_pivot.sort_values(by=["code_cluster", "mois"], inplace=True)
 
@@ -278,21 +281,21 @@ if __name__ == "__main__" :
     df_capacite = pd.read_csv("data/data_extracted/df_capacite.csv")
     df_nb_nuitees = pd.read_csv("data/data_extracted/df_nb_nuitees.csv")
 
-    print("### --- df_capacite transformed--- ###")
+    print("### --- df_capacite transformed--- ###\n")
     df_capacite = Transformer.transform_data_capacite(df_capacite)
-    print(df_capacite.head())
+    print(df_capacite.head(), '\n')
 
-    print("### --- df_nb_nuitees transformed --- ###")
+    print("### --- df_nb_nuitees transformed --- ###\n")
     df_nb_nuitees = Transformer.transform_data_nb_nuitees(df_nb_nuitees)
-    print(df_nb_nuitees.head())
+    print(df_nb_nuitees.head(), '\n')
 
 
-    print("### --- df_affluences --- ###")
+    print("### --- df_affluences --- ###\n")
     df_affluences = Transformer.creation_dataframe_affluences(df_capacite, df_nb_nuitees)
-    print(df_affluences.head())
+    print(df_affluences.head(),'\n')
 
-
-    print("### --- df_affluence_cluster --- ###")
+    print("\n")
+    print("### --- DONNEES FINALES TRANSFORMEES : df_affluence_cluster --- ###\n")
     df_communes = pd.read_csv("data/data_transformed/communes_france_cleaned.csv", low_memory=False)
     df_affluence_cluster = Transformer.affluences_cluster(df_affluences, df_communes)
     df_affluence_cluster.to_csv("data/data_transformed/cluster_affluence.csv", index=False)

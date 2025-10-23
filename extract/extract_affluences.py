@@ -151,5 +151,9 @@ if __name__ == '__main__' :
     df_capacite = Attendance_Extractor.extract_data_capacite()
     df_nb_nuitees = Attendance_Extractor.extract_data_nb_nuitees()
 
+    print('### --- DONNEES EXTRAITES AFFLUENCE --- ###\n')
+    print('df_capacite\n', df_capacite.head(), '\n')
+    print('df_nb_nuitees\n', df_nb_nuitees.head(), '\n')
+          
     df_capacite.to_csv("data/data_extracted/df_capacite.csv", index=False)
     df_nb_nuitees.to_csv("data/data_extracted/df_nb_nuitees.csv", index=False)
