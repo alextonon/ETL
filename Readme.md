@@ -115,3 +115,8 @@ Ce dossier contient les différents fichiers relatifs à la phase de transformat
 ### Fichier `main.py`
 
 Le fichier `main.py` permet de lancer l'exécution complète de la pipeline ETL. Il est possible de partir directement de fichiers enregistrés dans le dossier `/data` pour éviter de prendre trop de temps sur la phase d'extraction (qui est surtout longue pour la météo et les points d'intérêt). Les sources de données dépendant uniquement de celle relative aux communes de France, la pipeline concernant cette dernière doit être lancée en première, les autres peuvent ensuite être lancées dans un ordre quelconque, afin de remplir les différentes tables SQL souhaitées.
+
+
+### Fichier `exemple_algo.py`
+
+Ce fichier donne un rapide aperçu de comment pourrait fonctionner l'algorithme, bien qu'il manque de nombreux détails d'implémentation et une analyse plus fine/ une normalisation des scores pour pouvoir être réellement pertinent.
